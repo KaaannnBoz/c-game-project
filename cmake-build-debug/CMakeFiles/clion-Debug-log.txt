@@ -8,6 +8,54 @@ CMake Deprecation Warning:
   use the cmake-file-api(7) to view CMake-generated project build trees.
 
 
--- Configuring done (0.1s)
+-- Populating raylib
+-- Configuring done (0.0s)
 -- Generating done (0.0s)
+-- Build files have been written to: C:/Users/galdr/CLionProjects/c-game-project/cmake-build-debug/_deps/raylib-subbuild
+[ 11%] Performing download step (git clone) for 'raylib-populate'
+Cloning into 'raylib-src'...
+remote: Enumerating objects: 43116, done.        
+remote: Counting objects: 100% (636/636), done.        
+remote: Compressing objects: 100% (343/343), done.        
+remote: Total 43116 (delta 419), reused 451 (delta 293), pack-reused 42480        
+Receiving objects: 100% (43116/43116), 385.70 MiB | 930.00 KiB/s, done.
+Resolving deltas: 100% (31456/31456), done.
+Your branch is up to date with 'origin/master'.
+Already on 'master'
+[ 22%] Performing update step for 'raylib-populate'
+[ 33%] No patch step for 'raylib-populate'
+[ 44%] No configure step for 'raylib-populate'
+[ 55%] No build step for 'raylib-populate'
+[ 66%] No install step for 'raylib-populate'
+[ 77%] No test step for 'raylib-populate'
+[ 88%] Completed 'raylib-populate'
+[100%] Built target raylib-populate
+-- The CXX compiler identification is GNU 13.1.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Users/galdr/AppData/Local/Programs/CLion/bin/mingw/bin/g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test COMPILER_HAS_THOSE_TOGGLES
+-- Performing Test COMPILER_HAS_THOSE_TOGGLES - Success
+-- Testing if -Werror=pointer-arith can be used -- compiles
+-- Testing if -Werror=implicit-function-declaration can be used -- compiles
+-- Testing if -fno-strict-aliasing can be used -- compiles
+-- Using raylib's GLFW
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Including Win32 support
+-- Looking for dinput.h
+-- Looking for dinput.h - found
+-- Looking for xinput.h
+-- Looking for xinput.h - found
+-- Audio Backend: miniaudio
+-- Building raylib static library
+-- Generated build type: Debug
+-- Compiling with the flags:
+--   PLATFORM=PLATFORM_DESKTOP
+--   GRAPHICS=GRAPHICS_API_OPENGL_33
+-- Configuring done (439.7s)
+-- Generating done (0.1s)
 -- Build files have been written to: C:/Users/galdr/CLionProjects/c-game-project/cmake-build-debug
