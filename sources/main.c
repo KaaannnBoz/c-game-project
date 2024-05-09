@@ -1,43 +1,38 @@
-//
-// Created by galdr on 08/05/2024.
-//
-#include "exemple1.h"
-#include "exemple2.h"
-#include "exemple3.h"
-#include "exemple4.h"
-#include "exemple5.h"
-#include "exemple6.h"
-#include "exemple7.h"
-#include "exemple8.h"
+#include <raylib.h>
+#include "game.h"
+#include "graphics.h"
+#include "player_ia.h"
+#include "menu.h"
 
-int main(void){
-    int test = 4;
-    switch(test)
+int main() {
+    // Initialisation de la fenêtre Raylib
+    const int screenWidth = 800;
+    const int screenHeight = 600;
+
+    InitWindow(screenWidth, screenHeight, "GEGK : Un affrontement stratégique !");
+
+    // Affichage du menu et sélection de l'option
+    int option = ShowMenu();
+    switch(option)
     {
-        case 1:
-            test1();
+        case JEU_QUITTER :
+            CloseWindow();
+            return 0; // Quitter le jeu
+        case JEU_DEUX_JOUEURS :    
+            // Initialisation du jeu
+            InitGame();
+            // Boucle principale du jeu
+            while (!WindowShouldClose()) {
+                UpdateGame();
+                DrawGame();
+            }
+            // Nettoyage à la fin du jeu
+            EndGame();
+            CloseWindow();
+            return 0;
+        case JEU_UN_JOUEUR :
             break;
-        case 2:
-            test2();
-            break;
-        case 3:
-            test3();
-            break;
-        case 4:
-            test4();
-            break;
-        case 5:
-            test5();
-            break;
-        case 6:
-            test6();
-            break;
-        case 7:
-            test7();
-            break;
-        case 8:
-            test8();
+         case JEU_DEUX_IA :
             break;
     }
-
 }
