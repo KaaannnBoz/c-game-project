@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-void SimulatePlayer(GamePiece *player) {
+void SimulatePlayer(pionGrille *pion) {
     // Simuler le déplacement automatique du joueur (contrôlé par l'ordinateur)
 
     // Générer un mouvement aléatoire pour le joueur
@@ -10,16 +10,16 @@ void SimulatePlayer(GamePiece *player) {
 
     switch (randomDirection) {
         case 0: // Déplacement vers la droite
-            MovePlayer(player, player->position.row, player->position.col + 1);
+            deplacerPion(pion,pion->positionLigne, pion->positionColonne + 1);
             break;
         case 1: // Déplacement vers la gauche
-            MovePlayer(player, player->position.row, player->position.col - 1);
+            deplacerPion(pion,pion->positionLigne, pion->positionColonne - 1);
             break;
         case 2: // Déplacement vers le bas
-            MovePlayer(player, player->position.row + 1, player->position.col);
+            deplacerPion(pion,pion->positionLigne+1, pion->positionColonne);
             break;
         case 3: // Déplacement vers le haut
-            MovePlayer(player, player->position.row - 1, player->position.col);
+            deplacerPion(pion,pion->positionLigne-1, pion->positionColonne);
             break;
         default:
             break;

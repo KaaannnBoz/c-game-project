@@ -3,6 +3,6 @@
 
 #include "game.h"
 
-void SimulatePlayer(GamePiece *player);
+void SimulatePlayer(pionGrille *pion);
 
 #endif
