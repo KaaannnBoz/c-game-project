@@ -11,8 +11,8 @@ int ShowMenu(void) {
 
     int largeurEcran = GetScreenWidth(); // récupération de la largeur de l'écran principale
     int hauteurEcran = GetScreenHeight(); // récupération de la hauteur de l'écran principale
-     // Chargement de l'image en mémoire
-    Image imOrigin = LoadImage("../assets/menu1.png");
+
+    Image imOrigin = LoadImage("../assets/menu1.png");                   // Chargement de l'image en mémoire
     ImageFormat(&imOrigin, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);          // Passage de l'image en RGBA 32bit <-- Conseil dans exemples de Raylib
     Texture2D texture = LoadTextureFromImage(imOrigin);                 // Conversion de l'aimage en texture pour son affichage
 
@@ -103,14 +103,4 @@ int ShowMenu(void) {
     }
     UnloadTexture(texture);       // Déchargement des images
     UnloadImage(imOrigin);        // Déchargement des images
-}
-
-int SelectOption() {
-    if (IsKeyPressed(KEY_ENTER)) {
-        return JEU_DEUX_JOUEURS; // L'utilisateur a choisi de commencer le jeu
-    } 
-    if (IsKeyPressed(KEY_ESCAPE)) {
-        return JEU_QUITTER; // L'utilisateur a choisi de quitter le jeu
-    }
-    return -1;
 }

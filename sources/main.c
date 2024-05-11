@@ -19,15 +19,9 @@ int main() {
             CloseWindow();
             return 0; // Quitter le jeu
         case JEU_DEUX_JOUEURS :    
-            // Initialisation du jeu
-            InitGame();
-            // Boucle principale du jeu
-            while (!WindowShouldClose()) {
-                UpdateGame();
-                DrawGame();
-            }
-            // Nettoyage à la fin du jeu
-            EndGame();
+            initialiserJeu(); // Initialisation du jeu
+            boucleJeu(); // Boucle principale du jeu
+            finJeu(); // fin du jeu
             CloseWindow();
             return 0;
         case JEU_UN_JOUEUR :
