@@ -27,7 +27,7 @@ int ShowMenu(void) {
 
     while (!WindowShouldClose())    // Boucle tant que l'on a pas appuyé sur "Esc" ou la "X"
     {
-        // Permet de dterminer ce qui a été selection comme menu avec la souris
+        // Permet de determiner ce qui a été selection comme menu avec la souris
         for (int i = 0; i < NOMBRE_ITEMS_MENU; i++)
         {
             if (CheckCollisionPointRec(GetMousePosition(), itemMenuRec[i]))
