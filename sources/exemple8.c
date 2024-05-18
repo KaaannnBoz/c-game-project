@@ -1,34 +1,54 @@
 #include "raylib.h"
 
-#define SCREEN_WIDTH (800)
-#define SCREEN_HEIGHT (450)
-
-#define WINDOW_TITLE "Window title"
-
 int test8(void)
 {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-    SetTargetFPS(60);
+    // Initialisation de la fenêtre
+    const int screenWidth = 800;
+    const int screenHeight = 450;
 
-    Texture2D texture = LoadTexture(ASSETS_PATH"test.png"); // Check README.md for how this works
+    InitWindow(screenWidth, screenHeight, "Incrémenter/Décrémenter Nombre");
 
+    int count = 0;
+    Rectangle incrementButton = { screenWidth / 2 - 110, screenHeight / 2, 100, 50 };
+    Rectangle decrementButton = { screenWidth / 2 + 10, screenHeight / 2, 100, 50 };
+
+    SetTargetFPS(60); // Fixer le nombre d'images par seconde
+
+    // Boucle principale
     while (!WindowShouldClose())
     {
+        // Mise à jour
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 mousePoint = GetMousePosition();
+
+            if (CheckCollisionPointRec(mousePoint, incrementButton))
+            {
+                count++;
+            }
+            else if (CheckCollisionPointRec(mousePoint, decrementButton))
+            {
+                count--;
+            }
+        }
+
+        // Dessin
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
 
-        const int texture_x = SCREEN_WIDTH / 2 - texture.width / 2;
-        const int texture_y = SCREEN_HEIGHT / 2 - texture.height / 2;
-        DrawTexture(texture, texture_x, texture_y, WHITE);
+        DrawText(TextFormat("Nombre: %i", count), screenWidth / 2 - 40, screenHeight / 2 - 60, 20, BLACK);
 
-        const char* text = "OMG! IT WORKS!";
-        const Vector2 text_size = MeasureTextEx(GetFontDefault(), text, 20, 1);
-        DrawText(text, SCREEN_WIDTH / 2 - text_size.x / 2, texture_y + texture.height + text_size.y + 10, 20, BLACK);
+        DrawRectangleRec(incrementButton, LIGHTGRAY);
+        DrawText("+", incrementButton.x + 10, incrementButton.y + 15, 20, BLACK);
+
+        DrawRectangleRec(decrementButton, LIGHTGRAY);
+        DrawText("-", decrementButton.x + 10, decrementButton.y + 15, 20, BLACK);
 
         EndDrawing();
     }
 
+    // Déinitialisation
     CloseWindow();
 
     return 0;
