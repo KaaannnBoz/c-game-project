@@ -10,7 +10,7 @@
 #include "exemple7.h"
 #include "exemple8.h"
 
-int leMainDesExemples(void){
+int main2(void){
     int test = 8;
     switch(test)
     {

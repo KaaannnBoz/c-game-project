@@ -1,12 +1,17 @@
 #include "game.h"
 #include "player_ia.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 pionGrille pions[NOMBRE_PIONS_MAX]; // Tableau de pions
-Rectangle grille[NOMBRE_LIGNES_GRILLE][NOMBRE_COLONNES_GRILLE]; // Grille
+Rectangle** grille; // Grille dynamique
 pionGrille *pionSelectionne; // Pointeur vers le pion sélectionné
 bool deplacementPossible; // Indique si le dernier déplacement est possible
 int tourActuel; // Camp actuel qui joue (1 ou 2)
+int nombreLignesGrille; // Nombre de lignes de la grille
+int nombreColonnesGrille; // Nombre de colonnes de la grille
+int LargeurEcran;
+int hauteurEcran;
 
 void affichePionsDebug();
 // Tableau de noms correspondant aux types de pions
@@ -17,9 +22,15 @@ const char *nomPions[] = {
 };
 
 // Fonction pour initialiser la grille
-void initialiserGrille(Rectangle grille[NOMBRE_LIGNES_GRILLE][NOMBRE_COLONNES_GRILLE]) {
-    for (int ligne = 0; ligne < NOMBRE_LIGNES_GRILLE; ligne++) {
-        for (int colonne = 0; colonne < NOMBRE_COLONNES_GRILLE; colonne++) {
+void initialiserGrille() {
+    // Allocation de la grille
+    grille = (Rectangle**) calloc(nombreLignesGrille, sizeof(Rectangle*));
+    for (int i = 0; i < nombreLignesGrille; i++) {
+        grille[i] = (Rectangle*) calloc(nombreColonnesGrille, sizeof(Rectangle));
+    }
+
+    for (int ligne = 0; ligne < nombreLignesGrille; ligne++) {
+        for (int colonne = 0; colonne < nombreColonnesGrille; colonne++) {
             grille[ligne][colonne].x = DECALAGE_HORIZONTAL + colonne * TAILLE_CELLULE_GRILLE;
             grille[ligne][colonne].y = DECALAGE_VERTICAL + ligne * TAILLE_CELLULE_GRILLE;
             grille[ligne][colonne].width = TAILLE_CELLULE_GRILLE;
@@ -94,20 +105,24 @@ void initialiserPions(pionGrille pions[]) {
     initialiserFilou(&pions[3], 3, 0, CAMP_1,"C");
 
     // Initialisation des pions dans le camp 2
-    initialiserSoldat(&pions[4], 1, NOMBRE_COLONNES_GRILLE-2, CAMP_2,"W");
-    initialiserSoldat(&pions[5], 3, NOMBRE_COLONNES_GRILLE-2, CAMP_2,"Y");
-    initialiserArcher(&pions[6], 1, NOMBRE_COLONNES_GRILLE-1, CAMP_2,"X");
-    initialiserFilou(&pions[7], 3, NOMBRE_COLONNES_GRILLE-1, CAMP_2,"Z");
+    initialiserSoldat(&pions[4], 1, nombreColonnesGrille-2, CAMP_2,"W");
+    initialiserSoldat(&pions[5], 3, nombreColonnesGrille-2, CAMP_2,"Y");
+    initialiserArcher(&pions[6], 1, nombreColonnesGrille-1, CAMP_2,"X");
+    initialiserFilou(&pions[7], 3, nombreColonnesGrille-1, CAMP_2,"Z");
 }
 
 // Initialisation du jeu
 void initialiserJeu(){
-    // Initialisation de la fenêtre Raylib avec une taille fixe
-    //InitWindow(LARGEUR_ECRAN, HAUTEUR_ECRAN, "Partie à deux joeurs");
+    // Initialisation de la fenêtre Raylib avec une taille variable
+    LargeurEcran = nombreColonnesGrille * TAILLE_CELLULE_GRILLE + 40;
+    hauteurEcran = nombreLignesGrille * TAILLE_CELLULE_GRILLE + 200;
+
+
+    //InitWindow(LargeurEcran, hauteurEcran, "Partie à deux joeurs");
     // On remplace l'init de la fenetre par le changement de taille de la fentre
-    SetWindowSize(LARGEUR_ECRAN, HAUTEUR_ECRAN); // Changement de la taille de la fentre pour que cela comme la grille
+    SetWindowSize(LargeurEcran, hauteurEcran); // Changement de la taille de la fentre pour que cela comme la grille
     // Initialisation de la grille
-    initialiserGrille(grille);
+    initialiserGrille();
     // Initialisation des pions
     initialiserPions(pions);
 
@@ -117,7 +132,13 @@ void initialiserJeu(){
 }
 
 void finJeu() {
-// Mettre des free ? on a pas fait de malloc
+    // Libération de la mémoire
+    TraceLog(LOG_INFO,"==>finJeu free ==> nb lignes %d",nombreLignesGrille);
+    for (int i = 0; i < nombreLignesGrille; i++) {
+        free(grille[i]);
+    }
+    free(grille);
+    TraceLog(LOG_INFO,"<==finJeu");
 }
 
 // Algorithmes permettant de calcluler la distance entre deux cases
@@ -154,7 +175,7 @@ bool estDeplacementPossibleLigneColonne(int deplacementMax,int ligneCourante, in
 // Fonction pour vérifier si un déplacement est possible pour un pion donné
 bool estDeplacementPossible(const pionGrille *pion, int ligneCible, int colonneCible) {
     // Vérifier si on est dans la grille
-    if (ligneCible < 0 || ligneCible >= NOMBRE_LIGNES_GRILLE || colonneCible < 0 || colonneCible >= NOMBRE_COLONNES_GRILLE) {
+    if (ligneCible < 0 || ligneCible >= nombreLignesGrille || colonneCible < 0 || colonneCible >= nombreColonnesGrille) {
         return false; // Déplacement impossible (hors de la grille)
     }
 
@@ -193,8 +214,8 @@ void renduGraphique(){
     ClearBackground(RAYWHITE);
 
     // Dessin de la grille
-    for (int ligne = 0; ligne < NOMBRE_LIGNES_GRILLE; ligne++) {
-        for (int colonne = 0; colonne < NOMBRE_COLONNES_GRILLE; colonne++) {
+    for (int ligne = 0; ligne < nombreLignesGrille; ligne++) {
+        for (int colonne = 0; colonne < nombreColonnesGrille; colonne++) {
             if ((ligne + colonne) % 2 == 0) { // On met des couleurs differentes dans les cases
                 DrawRectangleRec(grille[ligne][colonne], DARKGRAY);
             } else {
@@ -223,18 +244,18 @@ void renduGraphique(){
 
     // Affichage dans la zone de texte
     // A a partir du bas
-    DrawRectangle(0, HAUTEUR_ECRAN - 120, LARGEUR_ECRAN, 120, LIGHTGRAY);
-    DrawText(TextFormat("Camp actuel : %d", tourActuel), 10, HAUTEUR_ECRAN - 105, 16, BLACK);
+    DrawRectangle(0, hauteurEcran - 120, LargeurEcran, 120, LIGHTGRAY);
+    DrawText(TextFormat("Camp actuel : %d", tourActuel), 10, hauteurEcran - 105, 16, BLACK);
     if (pionSelectionne != NULL) {
-        DrawText("Pion selectionné : ", 10, HAUTEUR_ECRAN - 85, 16, BLACK);
-        DrawText(nomPions[pionSelectionne->type], 180, HAUTEUR_ECRAN - 85, 16, BLACK);
+        DrawText("Pion selectionné : ", 10, hauteurEcran - 85, 16, BLACK);
+        DrawText(nomPions[pionSelectionne->type], 180, hauteurEcran - 85, 16, BLACK);
     } else {
-        DrawText("Aucun pion selectionné", 10, HAUTEUR_ECRAN - 85, 16, BLACK);
+        DrawText("Aucun pion selectionné", 10, hauteurEcran - 85, 16, BLACK);
     }
 
     // Message d'erreur pour texte interdit
     if (!deplacementPossible) {
-        DrawText("Déplacement interdit", 10, HAUTEUR_ECRAN - 60, 16, RED);
+        DrawText("Déplacement interdit", 10, hauteurEcran - 60, 16, RED);
     }
 
     // Fin du rendu graphique

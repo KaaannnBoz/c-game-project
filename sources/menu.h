@@ -13,6 +13,8 @@ int ShowMenu(void);
 #define JEU_A_PROPOS 4
 #define JEU_QUITTER 5
 
+#define MAX_INPUT_CHARS 9
+
 static const char *menuText[] = {
     "UN JOUEUR",
     "DEUX JOUEURS",

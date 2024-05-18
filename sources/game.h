@@ -7,13 +7,15 @@
 #include <math.h>
 #include <ctype.h>
 
-#define NOMBRE_COLONNES_GRILLE 7
-#define NOMBRE_LIGNES_GRILLE 5
+#define NOMBRE_COLONNES_GRILLE 7 // Valeur par defaut du nombre de colonnes
+#define NOMBRE_LIGNES_GRILLE 5 // Valeur par defaut du nombre de lignes
+#define MAX_NOMBRE_COLONNES_GRILLE 22 // Valeur  max du nombre de colonnes
+#define MIN_NOMBRE_COLONNES_GRILLE 4 // Valeur par defaut du nombre de lignes
+#define MAX_NOMBRE_LIGNES_GRILLE 9 // Valeur  max du nombre de colonnes
+#define MIN_NOMBRE_LIGNES_GRILLE 4 // Valeur par defaut du nombre de lignes
 #define TAILLE_CELLULE_GRILLE 80
 #define DECALAGE_HORIZONTAL 20
 #define DECALAGE_VERTICAL 40
-#define LARGEUR_ECRAN (NOMBRE_COLONNES_GRILLE * TAILLE_CELLULE_GRILLE + 40)
-#define HAUTEUR_ECRAN (NOMBRE_LIGNES_GRILLE * TAILLE_CELLULE_GRILLE + 200)
 #define NOMBRE_PIONS_MAX 8
 // definition des camps
 #define CAMP_1 1
@@ -59,8 +61,10 @@ void finJeu();
 void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) ;
 
 // Variables externes exposees et utlisees ailleurs
+extern int nombreLignesGrille; // Nombre de lignes de la grille
+extern int nombreColonnesGrille; // Nombre de colonnes de la grille
 extern pionGrille pions[NOMBRE_PIONS_MAX]; // Tableau de pions
-extern Rectangle grille[NOMBRE_LIGNES_GRILLE][NOMBRE_COLONNES_GRILLE]; // Grille
+extern Rectangle** grille; // Grille
 extern pionGrille *pionSelectionne; // Pointeur vers le pion sélectionné
 extern bool deplacementPossible; // Indique si le dernier déplacement est possible
 extern int tourActuel; // Camp actuel qui joue (1 ou 2)
