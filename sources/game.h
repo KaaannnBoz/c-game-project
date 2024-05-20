@@ -17,6 +17,8 @@
 #define DECALAGE_HORIZONTAL 20
 #define DECALAGE_VERTICAL 40
 #define NOMBRE_PIONS_MAX 8
+#define MAX_COUPS 50 // Nombre de coups maximum dans une partie
+
 // definition des camps
 #define CAMP_1 1
 #define CAMP_2 2
