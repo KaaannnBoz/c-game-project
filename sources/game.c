@@ -24,9 +24,9 @@ bool estJeuFini();
 
 // Tableau de noms correspondant aux types de pions
 const char *nomPions[] = {
-    "Soldat",
-    "Archer",
-    "Filou"
+        "Soldat",
+        "Archer",
+        "Filou"
 };
 
 
@@ -117,7 +117,7 @@ void initialiserArcher(pionGrille *pion, int ligne, int colonne, int camp,char n
     pion->deplacement = 2;
     pion->portee = 3;
     pion->nomCourt[0] = nomCourt[0];
-    pion->nomCourt[1] = '\0';  
+    pion->nomCourt[1] = '\0';
 }
 
 // Fonction pour initialiser un filou
@@ -136,7 +136,7 @@ void initialiserFilou(pionGrille *pion, int ligne, int colonne, int camp, char n
     pion->deplacement = 4;
     pion->portee = 1;
     pion->nomCourt[0] = nomCourt[0];
-    pion->nomCourt[1] = '\0';  
+    pion->nomCourt[1] = '\0';
 }
 
 // Fonction pour initialiser les pions
@@ -170,7 +170,7 @@ void initialiserJeu(){
     initialiserPions(pions);
 
     pionSelectionne = NULL; // Par defaut pas de pion selectionne
-    denierPionSelectionne = NULL; // Pas de dernier pion 
+    denierPionSelectionne = NULL; // Pas de dernier pion
     deplacementPossible = true; // Indique si le dernier deplacement est possible - on commance par deplacement
     tourActuel = 1; // Par défaut le premeir camp qui joue est le camp 1
     deplacementFait = false;
@@ -192,12 +192,12 @@ bool estDeplacementPossibleLigneColonne(int deplacementMax,int ligneCourante, in
             deplacementY = abs(colonneCourante - colonneCible);
             TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
             resultat = !(deplacementX > deplacementMax || deplacementY > deplacementMax);
-        break;
+            break;
         case 2 : // Alorithme de Manhattan
             distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
             TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, d=%d",deplacementMax,distance);
             resultat = distance <= deplacementMax;
-        break;
+            break;
         case 3 : // Alorithme de Tchebychev
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
@@ -312,12 +312,12 @@ bool estAttaquePossibleLigneColonne(int porteeMax,int ligneCourante, int colonne
             deplacementY = abs(colonneCourante - colonneCible);
             TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementX);
             resultat = !(deplacementX > porteeMax || deplacementY > porteeMax);
-        break;
+            break;
         case 2 : // Alorithme de Manhattan
             distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
             TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, d=%d",porteeMax,distance);
             resultat = distance <= porteeMax;
-        break;
+            break;
         case 3 : // Alorithme de Tchebychev
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
@@ -338,8 +338,8 @@ pionGrille* estAttaquePossible(int ligneCible, int colonneCible) {
         if (pions[i].positionColonne == colonneCible && pions[i].positionLigne == ligneCible) {
             if (pions[i].camp != tourActuel) { // On peut attaque un pion que si dans l'autre camp
                 if (estAttaquePossibleLigneColonne(denierPionSelectionne->portee,
-                                                    denierPionSelectionne->positionLigne,
-                                                    denierPionSelectionne->positionColonne,ligneCible,colonneCible)) {
+                                                   denierPionSelectionne->positionLigne,
+                                                   denierPionSelectionne->positionColonne,ligneCible,colonneCible)) {
                     return &pions[i]; // Ligne non occupee par un pion et a portée donc on attaque
                 }
             }
@@ -362,7 +362,7 @@ void attaque(){
         // Changer de camp pour le prochain tour
         tourActuel = (tourActuel == 1) ? 2 : 1;
         // Le nombre de coups a augmente
-        nombreCoups++;        
+        nombreCoups++;
         return;
     }
     // Détection du clic de souris
@@ -382,11 +382,17 @@ void attaque(){
                 if (pionAttaque != NULL) {
                     // Attaquer pion
                     attaquerPion(denierPionSelectionne,pionAttaque);
+                    if(denierPionSelectionne->attaque > pionAttaque->defense){
+                        pionAttaque->pointsDeVieMax = pionAttaque->pointsDeVieMax - (denierPionSelectionne->attaque - pionAttaque->defense) ;
+                    }
+                    if(denierPionSelectionne->attaque <= pionAttaque->defense){
+                        pionAttaque->pointsDeVieMax = pionAttaque->pointsDeVieMax - 1 ;
+                    }
                     // Changer de camp pour le prochain tour
                     tourActuel = (tourActuel == 1) ? 2 : 1;
                     // Le nombre de coups a augmente
                     nombreCoups++;
-                    deplacementFait=false; // On a fait attaque on peu de nouveau faire une mouvement
+                    deplacementFait=false; // On a fait attaque on peut de nouveau faire une mouvement
                 }
                 break;
             }
@@ -418,7 +424,7 @@ void renduGraphique(){
     for (int i = 0; i < NOMBRE_PIONS_MAX ; i++) {
         // Dessin du pion avec la bonne colueur
         DrawCircleV(pions[i].position, TAILLE_CELLULE_GRILLE / 4, pions[i].couleur);
-        
+
         // Le pion selectionne apparait de maniere diffrente
         if (pions[i].estSelectionne) {
             DrawCircleLines(pions[i].position.x, pions[i].position.y, TAILLE_CELLULE_GRILLE / 4 + 4, COULEUR_SELECTION_PION);
@@ -436,7 +442,10 @@ void renduGraphique(){
     DrawText(TextFormat("Camp actuel qui joue : %d (%s)", tourActuel,deplacementFait?"Attaque":"Deplacement"), 10, hauteurEcran - 105, 16, tourActuel==CAMP_1?CAMP_1_COULEUR:CAMP_2_COULEUR);
     if (pionSelectionne != NULL) {
         DrawText("Pion selectionné : ", 10, hauteurEcran - 85, 16, BLACK);
-        DrawText(nomPions[pionSelectionne->type], 180, hauteurEcran - 85, 16, BLACK);
+        DrawText(nomPions[pionSelectionne->type], 149, hauteurEcran - 85, 16, BLACK);
+        DrawText(TextFormat("PV restant: %01i", pionSelectionne->pointsDeVieMax), 10, hauteurEcran - 65, 16, BLACK);
+        DrawText(TextFormat("Attaque: %01i", pionSelectionne->attaque), 10, hauteurEcran - 45, 16, BLACK);
+        DrawText(TextFormat("Defense: %01i", pionSelectionne->defense), 10, hauteurEcran - 25, 16, BLACK);
     } else {
         DrawText("Aucun pion selectionné", 10, hauteurEcran - 85, 16, BLACK);
     }
@@ -445,7 +454,7 @@ void renduGraphique(){
     if (!deplacementPossible) {
         DrawText("Déplacement interdit", 10, hauteurEcran - 60, 16, RED);
     }
-    
+
     // Fin du rendu graphique
     EndDrawing();
 }
