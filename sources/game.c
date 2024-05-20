@@ -6,20 +6,63 @@
 pionGrille pions[NOMBRE_PIONS_MAX]; // Tableau de pions
 Rectangle** grille; // Grille dynamique
 pionGrille *pionSelectionne; // Pointeur vers le pion sélectionné
+pionGrille *denierPionSelectionne; // Pointeur vers le dernier pion sélectionné (le dernier deplace)
 bool deplacementPossible; // Indique si le dernier déplacement est possible
+bool deplacementFait; // Indique si le derner deplacment fait
 int tourActuel; // Camp actuel qui joue (1 ou 2)
 int nombreLignesGrille; // Nombre de lignes de la grille
 int nombreColonnesGrille; // Nombre de colonnes de la grille
 int LargeurEcran;
 int hauteurEcran;
+int nombreCoups; // Permet de savoir combien de coups ont été joues
 
 void affichePionsDebug();
+void renduGraphique();
+void deplacement();
+void attaque();
+bool estJeuFini();
+
 // Tableau de noms correspondant aux types de pions
 const char *nomPions[] = {
     "Soldat",
     "Archer",
     "Filou"
 };
+
+
+///// BOUCLE PINCIPAL JEU /////
+
+void boucleJeu() {
+    while (!WindowShouldClose()) {
+        if (!estJeuFini()){
+            deplacement();
+            attaque();
+            renduGraphique();
+        }
+        else {
+            return;
+        }
+    }
+}
+
+// Fin du jeu
+// si on dépase le nombre de coups on s'arrette
+bool estJeuFini(){
+    if (nombreCoups >= MAX_COUPS) return true;
+    return false;
+}
+
+void finJeu() {
+    // Libération de la mémoire
+    TraceLog(LOG_INFO,"==>finJeu free ==> nb lignes %d",nombreLignesGrille);
+    for (int i = 0; i < nombreLignesGrille; i++) {
+        free(grille[i]);
+    }
+    free(grille);
+    TraceLog(LOG_INFO,"<==finJeu");
+}
+
+///// INITIALISATIONS/////
 
 // Fonction pour initialiser la grille
 void initialiserGrille() {
@@ -127,19 +170,14 @@ void initialiserJeu(){
     initialiserPions(pions);
 
     pionSelectionne = NULL; // Par defaut pas de pion selectionne
-    deplacementPossible = true; // Indique si le dernier dé=eplacement est possible
+    denierPionSelectionne = NULL; // Pas de dernier pion 
+    deplacementPossible = true; // Indique si le dernier deplacement est possible - on commance par deplacement
     tourActuel = 1; // Par défaut le premeir camp qui joue est le camp 1
+    deplacementFait = false;
+    nombreCoups= 0;
 }
 
-void finJeu() {
-    // Libération de la mémoire
-    TraceLog(LOG_INFO,"==>finJeu free ==> nb lignes %d",nombreLignesGrille);
-    for (int i = 0; i < nombreLignesGrille; i++) {
-        free(grille[i]);
-    }
-    free(grille);
-    TraceLog(LOG_INFO,"<==finJeu");
-}
+///////// DEPLACEMENTS /////////////
 
 // Algorithmes permettant de calcluler la distance entre deux cases
 // Pour la distance Mannathan voir Wikipedia ==> https://fr.wikipedia.org/wiki/Distance_de_Manhattan
@@ -152,23 +190,23 @@ bool estDeplacementPossibleLigneColonne(int deplacementMax,int ligneCourante, in
         case 1 : // Classique
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
-            TraceLog(LOG_INFO, "[distanceEntreCases] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
+            TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
             resultat = !(deplacementX > deplacementMax || deplacementY > deplacementMax);
         break;
         case 2 : // Alorithme de Manhattan
             distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
-            TraceLog(LOG_INFO, "[distanceEntreCases] max=%d, d=%d",deplacementMax,distance);
+            TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, d=%d",deplacementMax,distance);
             resultat = distance <= deplacementMax;
         break;
         case 3 : // Alorithme de Tchebychev
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
             distance = deplacementX>deplacementY?deplacementX:deplacementY; // Il s'agit du MAX des 2
-            TraceLog(LOG_INFO, "[distanceEntreCases] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
+            TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
             resultat = distance <= deplacementMax;
             break;
     }
-    TraceLog(LOG_INFO, "[distanceEntreCases] Possible = %s",(resultat?"OUI":"NON"));
+    TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
     return resultat;
 }
 
@@ -195,7 +233,6 @@ bool estDeplacementPossible(const pionGrille *pion, int ligneCible, int colonneC
     return true; // Déplacement possible
 }
 
-
 // Fonction pour déplacer un pion sur la grille si le déplacement est possible
 void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) {
     // On met le pion au milieu du rectangle
@@ -207,6 +244,157 @@ void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) {
     pion->positionLigne = ligneCible;
     pion->positionColonne = colonneCible;
 }
+
+// Renvoie si un deplacement a été fait
+void deplacement(){
+    if (deplacementFait) return ; // Deplcement deja fait
+    // Détection du clic de souris
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 positionSouris = GetMousePosition();
+
+        // Vérifier si un pion est clique et le sélectionner
+        for (int i = 0; i < sizeof(pions) / sizeof(pions[0]); i++) {
+            if (CheckCollisionPointCircle(positionSouris, pions[i].position, TAILLE_CELLULE_GRILLE / 4) && pions[i].camp == tourActuel) {
+                // Désélectionner le pion  sélectionné avant
+                if (pionSelectionne != NULL) {
+                    pionSelectionne->estSelectionne = false;
+                }
+
+                // Sélectionner le nouveau pion
+                pions[i].estSelectionne = true;
+                pionSelectionne = &pions[i]; // indique le nouveau pion selectionne
+                break;
+            }
+        }
+    }
+    // Déplacer le pion sélectionné avec le mouvement de la souris
+    if (pionSelectionne != NULL && IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+        // Obtenir les indices de ligne et de colonne de la case cible
+        int ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
+        int colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
+        TraceLog(LOG_INFO,"CALCUL ligneCible=%d",ligneCible);
+        TraceLog(LOG_INFO,"CALCUL colonneCible=%d",colonneCible);
+        // Vérifier si le déplacement est valide
+        deplacementPossible = estDeplacementPossible(pionSelectionne, ligneCible, colonneCible);
+
+        if (deplacementPossible) {
+            // Déplacer le pion sélectionné
+            deplacerPion(pionSelectionne, ligneCible, colonneCible);
+
+            // Memoire du dernier pion selectionne (pour attaque)
+            denierPionSelectionne = pionSelectionne;
+            // Réinitialiser la sélection après le déplacement
+            pionSelectionne->estSelectionne = false;
+            pionSelectionne = NULL;
+
+            // Changer de camp pour le prochain tour
+            //tourActuel = (tourActuel == 1) ? 2 : 1;
+
+            // Le nombre de coups a augmente
+            nombreCoups++;
+            deplacementFait=true; // Maiontenant attaque
+        }
+    }
+}
+
+///////// ATTAQUES /////////////
+
+// Algorithmes permettant de calcluler la distance entre deux cases
+// Pour la distance Mannathan voir Wikipedia ==> https://fr.wikipedia.org/wiki/Distance_de_Manhattan
+// Il existe aussi la distance Tchebychev ==> de https://fr.wikipedia.org/wiki/Distance_de_Tchebychev
+bool estAttaquePossibleLigneColonne(int porteeMax,int ligneCourante, int colonneCourante,int ligneCible, int colonneCible){
+    bool resultat = false;
+    int deplacementX, deplacementY,distance;
+    int algo = 2; // Pour l'instant on utilise Manhattan
+    switch (algo){
+        case 1 : // Classique
+            deplacementX = abs(ligneCourante - ligneCible);
+            deplacementY = abs(colonneCourante - colonneCible);
+            TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementX);
+            resultat = !(deplacementX > porteeMax || deplacementY > porteeMax);
+        break;
+        case 2 : // Alorithme de Manhattan
+            distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
+            TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, d=%d",porteeMax,distance);
+            resultat = distance <= porteeMax;
+        break;
+        case 3 : // Alorithme de Tchebychev
+            deplacementX = abs(ligneCourante - ligneCible);
+            deplacementY = abs(colonneCourante - colonneCible);
+            distance = deplacementX>deplacementY?deplacementX:deplacementY; // Il s'agit du MAX des 2
+            TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementX);
+            resultat = distance <= porteeMax;
+            break;
+    }
+    TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
+    return resultat;
+}
+
+// Fonction pour vérifier si une attaque est possible pour un pion donné
+// Il renvoie le pion attaqué
+pionGrille* estAttaquePossible(int ligneCible, int colonneCible) {
+    // Vérifier si la case de destination est occupee par un autre pion
+    for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+        if (pions[i].positionColonne == colonneCible && pions[i].positionLigne == ligneCible) {
+            if (pions[i].camp != tourActuel) { // On peut attaque un pion que si dans l'autre camp
+                if (estAttaquePossibleLigneColonne(denierPionSelectionne->portee,
+                                                    denierPionSelectionne->positionLigne,
+                                                    denierPionSelectionne->positionColonne,ligneCible,colonneCible)) {
+                    return &pions[i]; // Ligne non occupee par un pion et a portée donc on attaque
+                }
+            }
+        }
+    }
+    return NULL; // Attaque impossible
+}
+
+// Attaquer du pion
+void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
+    TraceLog(LOG_INFO,"[attaquerPion] DEBUT");
+    TraceLog(LOG_INFO,"[attaquerPion] pion %s attaque %s",pionQuiAttaque->nomCourt,pionAttaque->nomCourt);
+    TraceLog(LOG_INFO,"[attaquerPion] FIN");
+}
+
+void attaque(){
+    if (!deplacementFait) return ; // Deplcement a faire d'abord
+    if (IsKeyPressed(KEY_F1) || IsKeyPressed(KEY_LEFT_CONTROL)) { // Si touche F1 ou 'CTRL' appuyee alors pas d'attaque
+        deplacementFait=false;
+        // Changer de camp pour le prochain tour
+        tourActuel = (tourActuel == 1) ? 2 : 1;
+        // Le nombre de coups a augmente
+        nombreCoups++;        
+        return;
+    }
+    // Détection du clic de souris
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) { // On designe le pion a attaquer
+        Vector2 positionSouris = GetMousePosition();
+        // Vérifier si un pion est clique et le sélectionner et si elle est pas dans la camp actuel
+        for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+            if (CheckCollisionPointCircle(positionSouris, pions[i].position, TAILLE_CELLULE_GRILLE / 4) && pions[i].camp != tourActuel) {
+                // Obtenir les indices de ligne et de colonne de la case cible
+                int ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
+                int colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
+                TraceLog(LOG_INFO,"CALCUL CIBLE ligneCible=%d",ligneCible);
+                TraceLog(LOG_INFO,"CALCUL CIBLE colonneCible=%d",colonneCible);
+                // Vérifier si le déplacement est valide
+                // pionSlection est le pion qui attaque
+                pionGrille* pionAttaque = estAttaquePossible(ligneCible, colonneCible);
+                if (pionAttaque != NULL) {
+                    // Attaquer pion
+                    attaquerPion(denierPionSelectionne,pionAttaque);
+                    // Changer de camp pour le prochain tour
+                    tourActuel = (tourActuel == 1) ? 2 : 1;
+                    // Le nombre de coups a augmente
+                    nombreCoups++;
+                    deplacementFait=false; // On a fait attaque on peu de nouveau faire une mouvement
+                }
+                break;
+            }
+        }
+    }
+}
+
+////////////// RENDU GRAPHIQUE /////////////
 
 void renduGraphique(){
     // Début du rendu graphique
@@ -245,7 +433,7 @@ void renduGraphique(){
     // Affichage dans la zone de texte
     // A a partir du bas
     DrawRectangle(0, hauteurEcran - 120, LargeurEcran, 120, LIGHTGRAY);
-    DrawText(TextFormat("Camp actuel : %d", tourActuel), 10, hauteurEcran - 105, 16, BLACK);
+    DrawText(TextFormat("Camp actuel qui joue : %d (%s)", tourActuel,deplacementFait?"Attaque":"Deplacement"), 10, hauteurEcran - 105, 16, tourActuel==CAMP_1?CAMP_1_COULEUR:CAMP_2_COULEUR);
     if (pionSelectionne != NULL) {
         DrawText("Pion selectionné : ", 10, hauteurEcran - 85, 16, BLACK);
         DrawText(nomPions[pionSelectionne->type], 180, hauteurEcran - 85, 16, BLACK);
@@ -257,57 +445,14 @@ void renduGraphique(){
     if (!deplacementPossible) {
         DrawText("Déplacement interdit", 10, hauteurEcran - 60, 16, RED);
     }
-
+    
     // Fin du rendu graphique
     EndDrawing();
 }
-void boucleJeu() {
-    while (!WindowShouldClose()) {
-        // Détection du clic de souris
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 positionSouris = GetMousePosition();
 
-            // Vérifier si un pion est clique et le sélectionner
-            for (int i = 0; i < sizeof(pions) / sizeof(pions[0]); i++) {
-                if (CheckCollisionPointCircle(positionSouris, pions[i].position, TAILLE_CELLULE_GRILLE / 4) && pions[i].camp == tourActuel) {
-                    // Désélectionner le pion  sélectionné avant
-                    if (pionSelectionne != NULL) {
-                        pionSelectionne->estSelectionne = false;
-                    }
+///////// DEBUG ////////////
 
-                    // Sélectionner le nouveau pion
-                    pions[i].estSelectionne = true;
-                    pionSelectionne = &pions[i]; // indique le nouveau pion selectionne
-                    break;
-                }
-            }
-        }
-
-        // Déplacer le pion sélectionné avec le mouvement de la souris
-        if (pionSelectionne != NULL && IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
-            // Obtenir les indices de ligne et de colonne de la case cible
-            int ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
-            int colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
-            TraceLog(LOG_INFO,"CALCUL ligneCible=%d",ligneCible);
-            TraceLog(LOG_INFO,"CALCUL colonneCible=%d",colonneCible);
-            // Vérifier si le déplacement est valide
-            deplacementPossible = estDeplacementPossible(pionSelectionne, ligneCible, colonneCible);
-
-            if (deplacementPossible) {
-                // Déplacer le pion sélectionné
-                deplacerPion(pionSelectionne, ligneCible, colonneCible);
-
-                // Réinitialiser la sélection après le déplacement
-                pionSelectionne->estSelectionne = false;
-                pionSelectionne = NULL;
-
-                // Changer de camp pour le prochain tour
-                tourActuel = (tourActuel == 1) ? 2 : 1;
-            }
-        }
-        renduGraphique();
-    }    
-}
+// Fonction de debug - affichage etat des pions
 void affichePionsDebug(){
     for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
         TraceLog(LOG_INFO, "==> affichePionsDebug");
