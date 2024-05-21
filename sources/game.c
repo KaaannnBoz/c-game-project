@@ -193,7 +193,7 @@ bool estDeplacementPossibleLigneColonne(int deplacementMax,int ligneCourante, in
             TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
             resultat = !(deplacementX > deplacementMax || deplacementY > deplacementMax);
             break;
-        case 2 : // Alorithme de Manhattan
+        case 2 : // Algorithme de Manhattan
             distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
             TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, d=%d",deplacementMax,distance);
             resultat = distance <= deplacementMax;
@@ -209,27 +209,71 @@ bool estDeplacementPossibleLigneColonne(int deplacementMax,int ligneCourante, in
     TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
     return resultat;
 }
+bool estCheminLibre(const pionGrille *pion, int ligneCible, int colonneCible) {
+    int ligneCourante = pion->positionLigne;
+    int colonneCourante = pion->positionColonne;
+    int deltaLigne = ligneCible - ligneCourante;
+    int deltaColonne = colonneCible - colonneCourante;
+    int pasLigne = (deltaLigne > 0) ? 1 : -1;
+    int pasColonne = (deltaColonne > 0) ? 1 : -1;
+    int ligne, colonne;
+
+    // Vérifie si le mouvement est horizontal, vertical ou diagonal
+    if (deltaLigne == 0) { // Déplacement horizontal
+        for (colonne = colonneCourante + pasColonne; colonne != colonneCible; colonne += pasColonne) {
+            for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+                if (pions[i].positionLigne == ligneCourante && pions[i].positionColonne == colonne) {
+                    return false; // Il y a un pion sur le chemin
+                }
+            }
+        }
+    } else if (deltaColonne == 0) { // Déplacement vertical
+        for (ligne = ligneCourante + pasLigne; ligne != ligneCible; ligne += pasLigne) {
+            for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+                if (pions[i].positionLigne == ligne && pions[i].positionColonne == colonneCourante) {
+                    return false; // Il y a un pion sur le chemin
+                }
+            }
+        }
+    } else if (abs(deltaLigne) == abs(deltaColonne)) { // Déplacement diagonal
+        for (ligne = ligneCourante + pasLigne, colonne = colonneCourante + pasColonne; ligne != ligneCible; ligne += pasLigne, colonne += pasColonne) {
+            for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+                if (pions[i].positionLigne == ligne && pions[i].positionColonne == colonne) {
+                    return false; // Il y a un pion sur le chemin
+                }
+            }
+        }
+    } else {
+        return false; // Déplacement non autorisé
+    }
+
+    return true; // Le chemin est libre
+}
 
 // Fonction pour vérifier si un déplacement est possible pour un pion donné
 bool estDeplacementPossible(const pionGrille *pion, int ligneCible, int colonneCible) {
     // Vérifier si on est dans la grille
-    if (ligneCible < 0 || ligneCible >= nombreLignesGrille || colonneCible < 0 || colonneCible >= nombreColonnesGrille) {
+    if (ligneCible < 0 || ligneCible >= NOMBRE_LIGNES_GRILLE || colonneCible < 0 || colonneCible >= NOMBRE_COLONNES_GRILLE) {
         return false; // Déplacement impossible (hors de la grille)
     }
 
-    // Vérifier si le déplacement est possible
-    if (!estDeplacementPossibleLigneColonne(pion->deplacement,pion->positionLigne,pion->positionColonne,ligneCible,colonneCible)) {
+    // Vérifier si le déplacement est possible selon la portée du pion
+    if (!estDeplacementPossibleLigneColonne(pion->deplacement, pion->positionLigne, pion->positionColonne, ligneCible, colonneCible)) {
         return false; // Déplacement impossible
     }
-    // Vérifier si la case de destination est occupee par un autre pion
-    // On ne peut pas bouger les pions dun meme camp l'un sur l'autre
-    // Si on veut autoriser les pions du même camp ==> pions[i].camp != pion->camp
-    //affichePionsDebug();
+
+    // Vérifier si la case de destination est occupée par un autre pion
     for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
         if (pions[i].positionColonne == colonneCible && pions[i].positionLigne == ligneCible) {
-            return false; // Ligne occupee par un pion
+            return false; // Ligne occupée par un pion
         }
     }
+
+    // Vérifier si le chemin est libre
+    if (!estCheminLibre(pion, ligneCible, colonneCible)) {
+        return false; // Le chemin est bloqué par un autre pion
+    }
+
     return true; // Déplacement possible
 }
 
@@ -329,7 +373,6 @@ bool estAttaquePossibleLigneColonne(int porteeMax,int ligneCourante, int colonne
     TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
     return resultat;
 }
-
 // Fonction pour vérifier si une attaque est possible pour un pion donné
 // Il renvoie le pion attaqué
 pionGrille* estAttaquePossible(int ligneCible, int colonneCible) {
