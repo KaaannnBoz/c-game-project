@@ -373,7 +373,6 @@ bool estAttaquePossibleLigneColonne(int porteeMax,int ligneCourante, int colonne
     TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
     return resultat;
 }
-
 // Fonction pour vérifier si une attaque est possible pour un pion donné
 // Il renvoie le pion attaqué
 pionGrille* estAttaquePossible(int ligneCible, int colonneCible) {
