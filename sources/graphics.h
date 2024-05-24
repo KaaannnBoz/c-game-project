@@ -1,6 +1,9 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-void DrawGame();
+#include "game.h"
+#include <raylib.h>
+
+void renduGraphique();
 
 #endif

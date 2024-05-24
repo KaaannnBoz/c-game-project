@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <raylib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
@@ -17,7 +18,7 @@
 #define DECALAGE_HORIZONTAL 20
 #define DECALAGE_VERTICAL 40
 #define NOMBRE_PIONS_MAX 8
-#define MAX_COUPS 50 // Nombre de coups maximum dans une partie
+#define MAX_COUPS 10 // Nombre de coups maximum dans une partie
 
 // definition des camps
 #define CAMP_1 1
@@ -41,6 +42,7 @@ extern const char *nomPieces[];
 
 // Structure pour représenter un pion sur la grille
 typedef struct {
+    int numeroPion;         // Numéro du pion
     char nomCourt[2];       // Nom en une lettre du pion
     int positionLigne;      // position actuell de la ligne
     int positionColonne;    // position actuell de la ligne
@@ -50,6 +52,7 @@ typedef struct {
     bool estSelectionne;    // Indique si le pion est sélectionné
     int camp;               // Camp auquel le pion appartient (1 ou 2)
     int pointsDeVieMax;     // Points de vie maximum du pion
+    int pointsDeVie;        // Points de courant du pion
     int attaque;            // Valeur d'attaque du pion
     int defense;            // Valeur de défense du pion
     int deplacement;        // Nombre de cases pour se déplacer
@@ -65,10 +68,21 @@ void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) ;
 // Variables externes exposees et utlisees ailleurs
 extern int nombreLignesGrille; // Nombre de lignes de la grille
 extern int nombreColonnesGrille; // Nombre de colonnes de la grille
-extern pionGrille pions[NOMBRE_PIONS_MAX]; // Tableau de pions
+extern pionGrille pionsGrille[NOMBRE_PIONS_MAX]; // Tableau de pions
 extern Rectangle** grille; // Grille
 extern pionGrille *pionSelectionne; // Pointeur vers le pion sélectionné
 extern bool deplacementPossible; // Indique si le dernier déplacement est possible
 extern int tourActuel; // Camp actuel qui joue (1 ou 2)
+
+extern int LargeurEcran;
+extern int hauteurEcran;
+extern int nombreCoups; // Permet de savoir combien de coups ont été joues
+extern bool toutLesPionsMortCamp1; //Permet de savoir si tout les Pions du Camp 1 sont Mort
+extern bool toutLesPionsMortCamp2; //Permet de savoir si tout les Pions du Camp 2 sont Mort
+extern int totalPvCamp1; // Permet de conaitre les PV du camp 1
+extern int totalPvCamp2;// Permet de conaitre les PV du camp 2
+extern bool deplacementFait; // Indique si le derner deplacment fait
+extern pionGrille *denierPionSelectionne; // Pointeur vers le dernier pion sélectionné (le dernier deplace)
+extern const char *nomPions[];
 
 #endif
