@@ -23,25 +23,15 @@ set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/sources/") # Define PROJECT_INCLU
 
 # Declaring our executable
 add_executable(${PROJECT_NAME}
-        sources/exemple1.c
-        sources/exemple2.c
-        sources/exemple2.c
-        sources/exemple1.h
-        sources/exemple2.h
-        sources/exemple3.h
-        sources/exemple3.h
-        sources/exemple4.h
-        sources/exemple5.h
-        sources/exemple5.h
-        sources/exemple6.h
-        sources/exemple6.h
-        sources/exemple7.h
-        sources/exemple7.h
-        sources/exemple8.h
-        sources/exemple8.h
         sources/menu.c
+        sources/initialisations.c
+        sources/intialisations.h
+        sources/attaques.c
+        sources/attaques.h
+        sources/deplacements.c
+        sources/deplacements.h
 
-        sources/game.c)
+)
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
