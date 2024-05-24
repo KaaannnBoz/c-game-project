@@ -26,7 +26,7 @@ int ShowMenu(void) {
     ImageFormat(&imgAPropos, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8); // Formatage de l'image À PROPOS
     Texture2D textureAPropos = LoadTextureFromImage(imgAPropos); // Passage de l'image en RGBA 32bit
 
-    Image imgAide = LoadImage("../assets/parrots.png"); // chargement de l'image À PROPOS en mémoire
+    Image imgAide = LoadImage("../assets/aide.png"); // chargement de l'image À PROPOS en mémoire
     ImageFormat(&imgAide, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8); // Formatage de l'image À PROPOS
     Texture2D textureAide = LoadTextureFromImage(imgAide); // Passage de l'image en RGBA 32bit
 
