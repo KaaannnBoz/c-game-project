@@ -1,3 +1,11 @@
+/**************************************************************************
+ * Nom du fichier : game.h
+ * Description    : Contient toutes les fonctions principales de gestion du jeu
+ * 					Contien aussi toutes les variables du jeu utilises dans deplacements.c, initialisations.c, attaques.c
+ * 					Contient les types principaux utlisés dans le jeu : pionGrille et les constantes 
+ * Auteurs        : Team GEGK
+ **************************************************************************/
+
 #ifndef GAME_H
 #define GAME_H
 
@@ -7,6 +15,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <ctype.h>
+#include "menu.h"
 
 #define NOMBRE_COLONNES_GRILLE 7 // Valeur par defaut du nombre de colonnes
 #define NOMBRE_LIGNES_GRILLE 5 // Valeur par defaut du nombre de lignes
@@ -19,6 +28,8 @@
 #define DECALAGE_VERTICAL 40
 #define NOMBRE_PIONS_MAX 8
 #define MAX_COUPS 100 // Nombre de coups maximum dans une partie
+#define FRAME_RATE 60 // Pour Raylib taux de raffraichissssement
+#define TEMPORISATION 500 // 500 ms pour la tempo en mode deux IA
 
 // definition des camps
 #define CAMP_1 1
@@ -64,6 +75,7 @@ void initialiserJeu();
 void boucleJeu();
 void finJeu();
 void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) ;
+void affichePionsDebug(pionGrille pions[]);
 
 // Variables externes exposees et utlisees ailleurs
 extern int nombreLignesGrille; // Nombre de lignes de la grille
@@ -84,5 +96,7 @@ extern int totalPvCamp2;// Permet de conaitre les PV du camp 2
 extern bool deplacementFait; // Indique si le derner deplacment fait
 extern pionGrille *denierPionSelectionne; // Pointeur vers le dernier pion sélectionné (le dernier deplace)
 extern const char *nomPions[];
+extern int optionsIA; // Options de l'IA vaut 1 ou 3 coups
+extern int typeJeu ; // Indique si on fait un jeu un joueur, deux joueurs ou deux IA
 
 #endif
