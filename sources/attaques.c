@@ -103,10 +103,15 @@ void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
         }
     } else {
         // Contra attaque
-        if(pionAttaque->attaque > pionQuiAttaque->defense){
+        int ligneCourante = 0;
+        int colonneCourante = 0;
+        int ligneCible = 0;
+        int colonneCible = 0;
+        int distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
+        if(pionAttaque->attaque > pionQuiAttaque->defense && pionAttaque->portee >= distance ){
             pionQuiAttaque->pointsDeVie = pionQuiAttaque->pointsDeVie - (pionAttaque->attaque - pionQuiAttaque->defense) ;
         }
-        if(pionAttaque->attaque <= pionQuiAttaque->defense){
+        if(pionAttaque->attaque <= pionQuiAttaque->defense && pionAttaque->portee >= distance ){
             pionQuiAttaque->pointsDeVie = pionQuiAttaque->pointsDeVie - 1 ;
         }
         if (pionQuiAttaque->pointsDeVie <= 0) {
