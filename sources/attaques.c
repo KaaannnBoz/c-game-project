@@ -79,6 +79,7 @@ bool estAttaquePossiblePion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
                                        pionAttaque->positionColonne)) {
         return true;
     }
+    return false;
 }
 
 // Attaquer du pion
@@ -135,10 +136,12 @@ void attaque(){
             deplacementFait = false;
             // Changer de camp pour le prochain tour
             tourActuel = (tourActuel == 1) ? 2 : 1;
+            denierPionSelectionne->estFatigue = true; // Le pion est fatigué
         }
         else{ // Pas d'attque uniquement mouvement
             deplacementFait = false;
             tourActuel = (tourActuel == 1) ? 2 : 1;
+            denierPionSelectionne->estFatigue = true; // Le pion est fatigué
         }
     } else {
         if (IsKeyPressed(KEY_F1) ||
@@ -146,6 +149,7 @@ void attaque(){
             deplacementFait = false;
             // Changer de camp pour le prochain tour
             tourActuel = (tourActuel == 1) ? 2 : 1;
+            denierPionSelectionne->estFatigue = true; // Le pion est fatigué
             return;
         }
         // Détection du clic de souris
@@ -174,5 +178,6 @@ void attaque(){
         // Changer de camp pour le prochain tour
         tourActuel = (tourActuel == 1) ? 2 : 1;
         deplacementFait = false; // On a fait attaque on peut de nouveau faire une mouvement
+        denierPionSelectionne->estFatigue = true; // Le pion est fatigué
     }
 }

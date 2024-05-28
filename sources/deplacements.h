@@ -22,5 +22,6 @@ bool estCheminLibre(const pionGrille *pion, int ligneCible, int colonneCible,pio
 bool estDeplacementPossible(const pionGrille *pion, int ligneCible, int colonneCible,pionGrille pions[]);
 void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible);
 void deplacement();
+void resetPionsFatigues(pionGrille pions[]);
 
 #endif //C_GAME_PROJECT_DEPLACEMENTS_H

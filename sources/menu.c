@@ -18,6 +18,16 @@
 #include "game.h"
 #include "raylib.h"
 
+static const char *menuText[] = {
+    "UN JOUEUR",
+    "DEUX JOUEURS",
+    "DEUX IAS",
+    "OPTIONS",
+    "A PROPOS",
+    "AIDE",
+    "QUITTER"
+};
+
 // Fonction permettant d'afficher le menu principal
 // La fonction renvoie l'item de menu séléctionné
 
@@ -231,4 +241,5 @@ int ShowMenu(void) {
         UnloadImage(imgAPropos);// Déchargement des images
         UnloadImage(imgAide);
         TraceLog(LOG_INFO, "==>FIN MENU");
+        return JEU_AUCUN;
     }

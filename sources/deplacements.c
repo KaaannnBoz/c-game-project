@@ -95,12 +95,16 @@ bool estCheminLibre(const pionGrille *pion, int ligneCible, int colonneCible,pio
 
 // Fonction pour vérifier si un déplacement est possible pour un pion donné
 bool estDeplacementPossible(const pionGrille *pion, int ligneCible, int colonneCible,pionGrille pions[]) {
+    // Si le pion est fatigué il ne peut pas bouger
+    if (pion->estFatigue) {
+        return false; // Déplacement impossible (fatigué)
+    }    
     // Si elle est mort pas possible
     if (pion->pointsDeVie <=0) {
         return false; // Déplacement impossible (mort)
     }
     // Vérifier si on est dans la grille
-    if (ligneCible < 0 || ligneCible >= NOMBRE_LIGNES_GRILLE || colonneCible < 0 || colonneCible >= NOMBRE_COLONNES_GRILLE) {
+    if (ligneCible < 0 || ligneCible >= nombreLignesGrille || colonneCible < 0 || colonneCible >= nombreColonnesGrille) {
         return false; // Déplacement impossible (hors de la grille)
     }
 
@@ -204,4 +208,26 @@ void deplacement(){
 		deplacementFait=true; // Maiontenant attaque
 		deplacementPossible = true;
 	}
+}
+
+// Remet tous les pions fatigués à non fatigués 
+void resetPionsFatigues(pionGrille pions[]){
+    int PionsFatiguesC1 = 0;
+    int PionsFatiguesC2 = 0;
+    
+    for (int i = 0; i < NOMBRE_PIONS_MAX; i++) { // Compte les pions fatigués
+        if (pionsGrille[i].camp == CAMP_2) {
+            if (pionsGrille[i].estFatigue || pionsGrille[i].pointsDeVie <=0 ) PionsFatiguesC2++;
+        }
+        else {
+            if (pionsGrille[i].estFatigue || pionsGrille[i].pointsDeVie <=0 ) PionsFatiguesC1++;
+        }
+    }
+    // Si tous les pions sont fatigues dans un camp alors non fatigués (divise par 2 car il y autant de pions dans le camps que dans camp 2)
+    if (PionsFatiguesC1 >= NOMBRE_PIONS_MAX/2 || PionsFatiguesC2 >= NOMBRE_PIONS_MAX/2){ 
+        for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+                if (pionsGrille[i].camp == CAMP_1 && PionsFatiguesC1 >= NOMBRE_PIONS_MAX/2 ) pionsGrille[i].estFatigue = false;
+                if (pionsGrille[i].camp == CAMP_2 && PionsFatiguesC2 >= NOMBRE_PIONS_MAX/2 ) pionsGrille[i].estFatigue = false;
+            }   
+    }
 }

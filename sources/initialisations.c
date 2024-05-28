@@ -57,6 +57,7 @@ void initialiserSoldat(pionGrille *pion, int ligne, int colonne, int camp, char 
     pion->portee = 1;
     pion->nomCourt[0] = nomCourt[0];
     pion->nomCourt[1] = '\0';
+    pion->estFatigue = false; // Par défuat le pion n'est pas fatigué
 }
 
 // Fonction pour initialiser un archer
@@ -78,6 +79,7 @@ void initialiserArcher(pionGrille *pion, int ligne, int colonne, int camp,char n
     pion->portee = 3;
     pion->nomCourt[0] = nomCourt[0];
     pion->nomCourt[1] = '\0';
+    pion->estFatigue = false; // Par défuat le pion n'est pas fatigué
 }
 
 // Fonction pour initialiser un filou
@@ -99,6 +101,7 @@ void initialiserFilou(pionGrille *pion, int ligne, int colonne, int camp, char n
     pion->portee = 1;
     pion->nomCourt[0] = nomCourt[0];
     pion->nomCourt[1] = '\0';
+    pion->estFatigue = false; // Par défuat le pion n'est pas fatigué
 }
 
 // Fonction pour initialiser les pions

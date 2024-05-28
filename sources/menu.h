@@ -25,14 +25,4 @@ int ShowMenu(void);
 
 #define MAX_INPUT_CHARS 9
 
-static const char *menuText[] = {
-    "UN JOUEUR",
-    "DEUX JOUEURS",
-    "DEUX IAS",
-    "OPTIONS",
-    "A PROPOS",
-    "AIDE",
-    "QUITTER"
-};
-
 #endif

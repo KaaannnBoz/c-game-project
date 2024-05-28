@@ -163,8 +163,8 @@ void calculerPointsDeVie(){
 
     totalPvCamp1 = PVCamp1;
     totalPvCamp2 = PVCamp2;
-
 }
+
 // si on dépase le nombre de coups on s'arrette
 bool estJeuFini(){
     if (nombreCoups >= MAX_COUPS) {
@@ -176,6 +176,7 @@ bool estJeuFini(){
         TraceLog(LOG_INFO, "[verifiePionsMorts] toutLesPionsMortCamp2=%d,toutLesPionsMortCamp1=%d",toutLesPionsMortCamp2,toutLesPionsMortCamp1);
         return true;
     }
+    resetPionsFatigues(pionsGrille);
     return false;
 }
 

@@ -37,6 +37,7 @@
 // Couleurs des camps
 #define CAMP_1_COULEUR RED
 #define CAMP_2_COULEUR BLUE
+#define COULEUR_PION_FATIGUE GRAY
 #define COULEUR_LETTRE_PION WHITE
 #define TAILLE_FONTE_LETTRE_PION 26
 #define COULEUR_SELECTION_PION YELLOW
@@ -68,6 +69,7 @@ typedef struct {
     int defense;            // Valeur de défense du pion
     int deplacement;        // Nombre de cases pour se déplacer
     int portee;             // Portée du pion
+    bool estFatigue;        // Indique si le pion est fatigué
 } pionGrille;
 
 // Fonctions utlisees

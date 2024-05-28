@@ -75,6 +75,8 @@ void calculerMouvements(Noeud* racine){
                         }
                         deplacerPion(&coupEnfant.tableauPions[pion], coupEnfant.ligneCibleMouvement,
                                      coupEnfant.colonneCibleMouvement);
+                        coupEnfant.tableauPions[pion].estFatigue = true;
+                        //resetPionsFatigues(coupEnfant.tableauPions[]);
                         CalculerNoteTableau(&coupEnfant);
                         enfant = creerNoeud(coupEnfant);
                         TraceLog(LOG_INFO,"[calculerMouvements][%d,%d] nomCourt=%s, colCible=%d, ligneCible=%d, colEnCOurs=%d, ligneEncours=%d",
@@ -208,8 +210,9 @@ int distancePions(int x1,int y1,int x2, int y2){
     return distance;
 }
 // Exemple d'utilisation des fonctions
+/*
 int tests() {
-    /*
+    
     // Création des noeuds
     Noeud* racine = creerNoeud(1);
     Noeud* enfant1 = creerNoeud(2);
@@ -239,5 +242,5 @@ int tests() {
     libererArbre(racine);
     
     return 0;
-     */
 }
+*/
