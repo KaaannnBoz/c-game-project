@@ -1,3 +1,20 @@
+/**************************************************************************
+ * Nom du fichier : initialisations.c
+ * Description    : Contient les fonctions d'initialisation du jeu
+ * Auteurs        : Team GEGK
+ * Historique     :
+ *      1/5/2024 : Création initiale du fichier 
+ *		23/5/2024 : Déplacement dans initialisations.c de toutes les fonctions d'initialisation venant de game.c
+ *		25/5/2024 : Ajout du type de jeu et IA
+ * Liste des fonctions :
+ *		- initialiserJeu : Initialisation du jeu - appel toutes les autres fonctions
+ *		- initialiserPions : Initialisation de tous les pions 
+ *		- initialiserFilou : Initialisation d'un filou
+ *		- initialiserArcher : Initialisation d'un archer
+ * 		- initialiserSoldat : Initialisation d'un soldat
+ *		- initialiserGrille : Initialisation de la grille (tableau du jeu) - tableau dynamique
+ **************************************************************************/
+ 
 #include "game.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,7 +117,7 @@ void initialiserPions(pionGrille pions[]) {
 }
 
 // Initialisation du jeu
-void initialiserJeu(){
+void initialiserJeu(int typeDeJeu){
     // Initialisation de la fenêtre Raylib avec une taille variable
     LargeurEcran = nombreColonnesGrille * TAILLE_CELLULE_GRILLE + 40;
     hauteurEcran = nombreLignesGrille * TAILLE_CELLULE_GRILLE + 310;
@@ -122,4 +139,5 @@ void initialiserJeu(){
     nombreCoups= 0;
     toutLesPionsMortCamp1 = false;
     toutLesPionsMortCamp2 = false;
+	typeJeu = typeDeJeu; // on met le type de jeu pour l'IA
 }

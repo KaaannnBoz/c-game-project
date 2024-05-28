@@ -1,3 +1,14 @@
+/**************************************************************************
+ * Nom du fichier : graphics.c
+ * Description    : Contient les fonctions de rendu graphique du jeu
+ * Auteurs        : Team GEGK
+ * Historique     :
+ *      1/05/2024 : Création initiale du fichier 
+ *		23/05/2024 : Déplacement dans graphics.c de la boucle principale du jeu
+ * Liste des fonctions :
+ *		-renduGraphique : rendu graphique de la boucle principale du jeu
+ **************************************************************************/
+ 
 #include "graphics.h"
 
 ////////////// RENDU GRAPHIQUE /////////////
@@ -52,7 +63,7 @@ void renduGraphique(){
 
     // Message d'erreur pour texte interdit
     if (!deplacementPossible) {
-        DrawText("Déplacement interdit", 10, hauteurEcran - 60, 16, RED);
+        DrawText("Déplacement interdit", 200, hauteurEcran - 25, 16, RED);
     }
 
     // Fin du rendu graphique

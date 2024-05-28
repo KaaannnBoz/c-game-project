@@ -1,3 +1,19 @@
+/**************************************************************************
+ * Nom du fichier : menu.c
+ * Description    : Contient lla gestion du menu principal permettant de gérer les options
+ *					inspiré de https://www.raylib.com/examples.html (textures)
+ * Auteurs        : Team GEGK
+ * Historique     :
+ *      1/05/2024 : Création initiale du fichier 
+ *		11/5/2024 : Ajout des options
+ *		20/5/2024 : Ajout de aide
+ *		25/5/2024 : Options IA 1 ou 2
+ * 
+ * Liste des fonctions :
+ *		-ShowMenu : Fonction principale de gestion des menus
+ **************************************************************************/
+ 
+
 #include "menu.h"
 #include "game.h"
 #include "raylib.h"
@@ -42,7 +58,6 @@ int ShowMenu(void) {
     // Choix de l'IA
     Rectangle IABoutonPlus = {optionsX, optionsY + 120, 30, 50};
     Rectangle IABoutonMoins = {optionsX + 35, optionsY + 120, 30, 50};
-    int optionsIA = 3;
 
     // MENU
     Rectangle itemMenuRec[NOMBRE_ITEMS_MENU] = {0}; // Initialisation des élements du menu
@@ -52,9 +67,6 @@ int ShowMenu(void) {
     const int hauteur_menu = 170;
     for (int i = 0; i < NOMBRE_ITEMS_MENU; i++)
         itemMenuRec[i] = (Rectangle) {40.0f, (float) (hauteur_menu + 32 * i), 150.0f, 30.0f};
-
-    SetTargetFPS(60);
-
 
     while (!fermerFenetre)    // Boucle tant que l'on a pas appuyé sur "Esc" ou la "X"
     {
@@ -88,10 +100,10 @@ int ShowMenu(void) {
                 nombreLignesGrille =
                         nombreLignesGrille <= MIN_NOMBRE_LIGNES_GRILLE ? MIN_NOMBRE_LIGNES_GRILLE : nombreLignesGrille -
                                                                                                     1;
-            } else if (CheckCollisionPointRec(mousePoint, IABoutonPlus)) { // Options de IA
-                optionsIA = optionsIA >= 3 ? 1 : optionsIA + 1; // Quand on arrive a 3 on revien a 1
+            } else if (CheckCollisionPointRec(mousePoint, IABoutonPlus)) { // Options de IA 1 ou 3
+                optionsIA = optionsIA >= 3 ? 1 : 3; 
             } else if (CheckCollisionPointRec(mousePoint, IABoutonMoins)) {
-                optionsIA = optionsIA <= 1 ? 3 : optionsIA - 1; // Quand on arrive a 1 on revien a 3
+                optionsIA = optionsIA <= 1 ? 3 : 1;
             }
         }
 
@@ -120,6 +132,8 @@ int ShowMenu(void) {
             switch (currentMenu) {
                 case JEU_QUITTER :
                 case JEU_DEUX_JOUEURS :
+                case JEU_UN_JOUEUR :
+                case JEU_DEUX_IA :
                     option = currentMenu;
                     UnloadTexture(textureMenu);       // Déchargement des images
                     UnloadTexture(textureAPropos);

@@ -1,3 +1,12 @@
+/**************************************************************************
+ * Nom du fichier : menu.h
+ * Description    : Contient lla gestion du menu principal permettant de gérer les options
+ *					inspiré de https://www.raylib.com/examples.html (textures)
+ * Auteurs        : Team GEGK
+ * Liste des fonctions :
+ *		-ShowMenu : Fonction principale de gestion des menus
+ **************************************************************************/
+
 #ifndef MENU_H
 #define MENU_H
 

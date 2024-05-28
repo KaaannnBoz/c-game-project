@@ -1,4 +1,20 @@
-#include "game.h"
+/**************************************************************************
+ * Nom du fichier : attaques.c
+ * Description    : Contient toutes les fonbctions principales peremttant de gérére les attaques dans le jeu
+ * Auteurs        : Team GEGK
+ *                  Inspiré par https://fr.wikipedia.org/wiki/Distance_de_Manhattan pour les distances
+ *								https://fr.wikipedia.org/wiki/Distance_de_Tchebychev
+ * Historique     :
+ *      1/05/2024 : Création initiale des fonctions
+ *		23/05/2024 : Mise en place du fichier attaques.c 
+ * Liste des fonctions :
+ *		- estAttaquePossibleLigneColonne(porteeMax, ligneCourante, colonneCourante, ligneCible, colonneCible) : fonction indiquant si l'attaque est posible
+ *		- estAttaquePossible(ligneCible, colonneCible, pions[]) : Fonction pour vérifier si une attaque est possible pour un pion donné
+ *		- attaquerPion(pionQuiAttaque, pionAttaque) : Permet d'attaquer un pion
+ *		- attaque() : Fonction principale de l'attaque dans la boucle
+ **************************************************************************/ 
+
+#include "attaques.h"
 
 ///////// ATTAQUES /////////////
 
@@ -34,15 +50,15 @@ bool estAttaquePossibleLigneColonne(int porteeMax,int ligneCourante, int colonne
 }
 // Fonction pour vérifier si une attaque est possible pour un pion donné
 // Il renvoie le pion attaqué
-pionGrille* estAttaquePossible(int ligneCible, int colonneCible,pionGrille pions[]) {
+pionGrille* estAttaquePossible(pionGrille* pionQuiAttaque,int ligneCible, int colonneCible,pionGrille pions[]) {
     // Vérifier si la case de destination est occupee par un autre pion
     for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
         if (pions[i].positionColonne == colonneCible && pions[i].positionLigne == ligneCible) {
             if (pions[i].camp != tourActuel) { // On peut attaque un pion que si dans l'autre camp
                 if (pions[i].pointsDeVie > 0) { // On attaque pas les morts
-                    if (estAttaquePossibleLigneColonne(denierPionSelectionne->portee,
-                                                       denierPionSelectionne->positionLigne,
-                                                       denierPionSelectionne->positionColonne, ligneCible,
+                    if (estAttaquePossibleLigneColonne(pionQuiAttaque->portee,
+                                                       pionQuiAttaque->positionLigne,
+                                                       pionQuiAttaque->positionColonne, ligneCible,
                                                        colonneCible)) {
                         return &pions[i]; // Ligne non occupee par un pion et a portée donc on attaque
                     }
@@ -51,6 +67,18 @@ pionGrille* estAttaquePossible(int ligneCible, int colonneCible,pionGrille pions
         }
     }
     return NULL; // Attaque impossible
+}
+
+// Indique si un pion peut en attaquer une autre
+bool estAttaquePossiblePion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
+    if (pionQuiAttaque->camp == pionAttaque->camp) return false; // On n'attaque pas un pion de son camp
+    if (pionQuiAttaque->pointsDeVie <=0 || pionAttaque->pointsDeVie <= 0) return false; // Ils sont morts
+    if (estAttaquePossibleLigneColonne(pionQuiAttaque->portee,
+                                       pionQuiAttaque->positionLigne,
+                                       pionQuiAttaque->positionColonne, pionAttaque->positionLigne,
+                                       pionAttaque->positionColonne)) {
+        return true;
+    }
 }
 
 // Attaquer du pion
@@ -75,10 +103,15 @@ void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
         }
     } else {
         // Contra attaque
-        if(pionAttaque->attaque > pionQuiAttaque->defense){
+        int ligneCourante = 0;
+        int colonneCourante = 0;
+        int ligneCible = 0;
+        int colonneCible = 0;
+        int distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
+        if(pionAttaque->attaque > pionQuiAttaque->defense && pionAttaque->portee >= distance ){
             pionQuiAttaque->pointsDeVie = pionQuiAttaque->pointsDeVie - (pionAttaque->attaque - pionQuiAttaque->defense) ;
         }
-        if(pionAttaque->attaque <= pionQuiAttaque->defense){
+        if(pionAttaque->attaque <= pionQuiAttaque->defense && pionAttaque->portee >= distance ){
             pionQuiAttaque->pointsDeVie = pionQuiAttaque->pointsDeVie - 1 ;
         }
         if (pionQuiAttaque->pointsDeVie <= 0) {
@@ -93,36 +126,53 @@ void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
 }
 
 void attaque(){
+    pionGrille *pionAttaque = NULL; // Pion qui attaque
+    if (IsKeyPressed(KEY_D)) { affichePionsDebug(pionsGrille); } // POUR DEBUG
     if (!deplacementFait) return ; // Deplcement a faire d'abord
-    if (IsKeyPressed(KEY_F1) || IsKeyPressed(KEY_LEFT_CONTROL)) { // Si touche F1 ou 'CTRL' appuyee alors pas d'attaque
-        deplacementFait=false;
-        // Changer de camp pour le prochain tour
-        tourActuel = (tourActuel == 1) ? 2 : 1;
-        return;
-    }
-    // Détection du clic de souris
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) { // On designe le pion a attaquer
-        Vector2 positionSouris = GetMousePosition();
-        // Vérifier si un pion est clique et le sélectionner et si elle est pas dans la camp actuel
-        for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
-            if (CheckCollisionPointCircle(positionSouris, pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4) && pionsGrille[i].camp != tourActuel) {
-                // Obtenir les indices de ligne et de colonne de la case cible
-                int ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
-                int colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
-                TraceLog(LOG_INFO,"CALCUL CIBLE ligneCible=%d",ligneCible);
-                TraceLog(LOG_INFO,"CALCUL CIBLE colonneCible=%d",colonneCible);
-                // Vérifier si le déplacement est valide
-                // pionSlection est le pion qui attaque
-                pionGrille* pionAttaque = estAttaquePossible(ligneCible, colonneCible,pionsGrille);
-                if (pionAttaque != NULL) {
-                    // Attaquer pion
-                    attaquerPion(denierPionSelectionne,pionAttaque);
-                    // Changer de camp pour le prochain tour
-                    tourActuel = (tourActuel == 1) ? 2 : 1;
-                    deplacementFait=false; // On a fait attaque on peut de nouveau faire une mouvement
+    if ((typeJeu == JEU_UN_JOUEUR && tourActuel == 2) || typeJeu == JEU_DEUX_IA) { // L'IA joue pour le camp 2 Attaque
+        if (coupIAEnCours.pionAttaque >= 0) { // Attaque à faire
+            pionAttaque = &pionsGrille[coupIAEnCours.pionAttaque];
+            deplacementFait = false;
+            // Changer de camp pour le prochain tour
+            tourActuel = (tourActuel == 1) ? 2 : 1;
+        }
+        else{ // Pas d'attque uniquement mouvement
+            deplacementFait = false;
+            tourActuel = (tourActuel == 1) ? 2 : 1;
+        }
+    } else {
+        if (IsKeyPressed(KEY_F1) ||
+            IsKeyPressed(KEY_LEFT_CONTROL)) { // Si touche F1 ou 'CTRL' appuyee alors pas d'attaque
+            deplacementFait = false;
+            // Changer de camp pour le prochain tour
+            tourActuel = (tourActuel == 1) ? 2 : 1;
+            return;
+        }
+        // Détection du clic de souris
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) { // On designe le pion a attaquer
+            Vector2 positionSouris = GetMousePosition();
+            // Vérifier si un pion est clique et le sélectionner et si elle est pas dans la camp actuel
+            for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
+                if (CheckCollisionPointCircle(positionSouris, pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4) &&
+                    pionsGrille[i].camp != tourActuel) {
+                    // Obtenir les indices de ligne et de colonne de la case cible
+                    int ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
+                    int colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
+                    TraceLog(LOG_INFO, "CALCUL CIBLE ligneCible=%d", ligneCible);
+                    TraceLog(LOG_INFO, "CALCUL CIBLE colonneCible=%d", colonneCible);
+                    // Vérifier si le déplacement est valide
+                    // pionSlection est le pion qui attaque
+                    pionAttaque = estAttaquePossible(denierPionSelectionne,ligneCible, colonneCible, pionsGrille);
+                    break;
                 }
-                break;
             }
         }
+    }
+    if (pionAttaque != NULL) {
+        // Attaquer pion
+        attaquerPion(denierPionSelectionne, pionAttaque);
+        // Changer de camp pour le prochain tour
+        tourActuel = (tourActuel == 1) ? 2 : 1;
+        deplacementFait = false; // On a fait attaque on peut de nouveau faire une mouvement
     }
 }

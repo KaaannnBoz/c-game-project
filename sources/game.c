@@ -1,8 +1,28 @@
+/**************************************************************************
+ * Nom du fichier : game.c
+ * Description    : Contient toutes les fonctions principales de gestion du jeu
+ * 					Contien aussi toutes les variables du jeu utilises dans deplacements.c, initialisations.c, attaques.c
+ * Auteurs        : Team GEGK
+ * Historique     :
+ *      1/05/2024 : Création initiale des fonctions
+ *		23/5/2024 : Mise en place du fichier game.c seul avec retrait de toutes les autres fonctions 
+ *		25/5/2024 : Ajout options IA et appel IA
+ * Liste des fonctions :
+ *		- boucleJeu() : boucle principale du jeu
+ *		- afficherPopupFin affichadu poup de fin de jeu quand c'est terminé
+ * 		- verifiePionsMorts() : permet de vérifier si tous les pions d'un camp sont morts (pour fin de jeu)
+ * 		- calculerPointsDeVie() : calcul le total des pints de vioe dans les deux camps
+ *		- estJeuFini() : indique pour la boucle principale si le jeu est fini
+ * 		- finJeu() : fonction a appelé en fin de jeu pour libérer la memoire
+ *		- affichePionsDebug() : Fonction de debug
+ **************************************************************************/
+
 #include "game.h"
 #include "graphics.h"
 #include "deplacements.h"
 #include "attaques.h"
 #include "player_ia.h"
+#include <time.h>
 
 pionGrille pionsGrille[NOMBRE_PIONS_MAX]; // Tableau de pions
 Rectangle** grille; // Grille dynamique
@@ -20,8 +40,9 @@ bool toutLesPionsMortCamp1; //Permet de savoir si tout les Pions du Camp 1 sont 
 bool toutLesPionsMortCamp2; //Permet de savoir si tout les Pions du Camp 2 sont Mort
 int totalPvCamp1; // Permet de conaitre les PV du camp 1
 int totalPvCamp2;// Permet de conaitre les PV du camp 2
+int optionsIA = 1; // Options de l'IA vaut 1 ou 3 coups (au debut 1)
+int typeJeu = JEU_DEUX_JOUEURS; // Indique si on fait un jeu un joueur, deux joueurs ou deux IA
 
-void affichePionsDebug();
 void afficherPopupFin();
 bool estJeuFini();
 
@@ -35,10 +56,20 @@ const char *nomPions[] = {
 
 ///// BOUCLE PRINCIPALE DU JEU /////
 void boucleJeu() {
+    clock_t lastTime = clock();  // Initialisation du dernier temps mesuré
     while (!WindowShouldClose()) {
         if (!estJeuFini()){
-            deplacement();
-            attaque();
+            if (typeJeu == JEU_DEUX_IA) { // On doit ralendir le jeu en mode 2 IA car ca va tro vite
+                // Voir actuce https://fr.wikiversity.org/wiki/Fonctions_de_base_en_langage_C/time.h#:~:text=Fonction%20time()%20modifier,0%20seconde%20sous%20UNIX%2C%20UTC.
+                if ((clock() - lastTime) > (TEMPORISATION * CLOCKS_PER_SEC / 1000)) { // permet de pas aller trop vite en mode deux IA
+                    deplacement();
+                    attaque();
+                    lastTime = clock();  // Réinitialiser le dernier temps mesuré
+                }
+            } else {
+                deplacement();
+                attaque();
+            }
             renduGraphique();
         }
         else {
@@ -50,14 +81,12 @@ void boucleJeu() {
 
 void afficherPopupFin(){
     // Créer le message de fin de partie
-    //InitWindow(300, 300, "GEGK : FIN !");
+
     Rectangle popup = { LargeurEcran / 2 - 200, hauteurEcran / 2 - 75, 400, 250 };
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(GRAY);
         DrawRectangleRec(popup, WHITE);
-
-        //DrawText("Press ESC to close", popup.x + 20, popup.y + 60, 20, RAYWHITE);
 
         if (toutLesPionsMortCamp1 || toutLesPionsMortCamp2) {
             if (toutLesPionsMortCamp1) {
@@ -87,7 +116,6 @@ void afficherPopupFin(){
         EndDrawing();
         // Attendre que l'utilisateur ferme la fenêtre
     }
-    //CloseWindow();
 }
 
 
@@ -166,9 +194,11 @@ void finJeu() {
 // Fonction de debug - affichage etat des pions
 void affichePionsDebug(pionGrille pions[]){
     for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
-        TraceLog(LOG_INFO, "==> affichePionsDebug");
-        TraceLog(LOG_INFO,"pion[%d].positionColonne = %d",i,pionsGrille[i].positionColonne);
-        TraceLog(LOG_INFO,"pion[%d].positionLigne = %d",i,pions[i].positionLigne);
-        TraceLog(LOG_INFO, "<== affichePionsDebug");
+        TraceLog(LOG_INFO,"DEBUG pion[%d] nom=%s, camp=%d, pv=%d,type=%s ",i,
+                 pionsGrille[i].nomCourt,
+                 pionsGrille[i].camp,
+                 pionsGrille[i].pointsDeVie,
+                 nomPions[pionsGrille[i].type]
+                 );
     }
 }

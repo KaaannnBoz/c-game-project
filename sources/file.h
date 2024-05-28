@@ -1,3 +1,9 @@
+/**************************************************************************
+ * Nom du fichier : file.h
+ * Description    : Gestion d'une file pour le parcours d'un arbre avec plusieurs fils pour l'IA est l'algo MinMAx
+ * Auteurs        : Team GEGK
+ **************************************************************************/
+
 #ifndef FILE_H
 #define FILE_H
 
