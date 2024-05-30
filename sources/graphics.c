@@ -34,7 +34,11 @@ void renduGraphique(){
     // Le nombre de pions est aussi sizeof(pions) / sizeof(pions[0])
     for (int i = 0; i < NOMBRE_PIONS_MAX ; i++) {
         // Dessin du pion avec la bonne colueur
-        DrawCircleV(pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4, pionsGrille[i].couleur);
+        if (pionsGrille[i].estFatigue){
+            DrawCircleV(pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4, COULEUR_PION_FATIGUE);
+        } else {
+            DrawCircleV(pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4, pionsGrille[i].couleur);
+        }
 
         // Le pion selectionne apparait de maniere diffrente
         if (pionsGrille[i].estSelectionne) {
