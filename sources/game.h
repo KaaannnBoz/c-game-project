@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <math.h>
-#include <ctype.h>
+//#include <math.h>
+//#include <ctype.h>
 #include "menu.h"
 
 #define NOMBRE_COLONNES_GRILLE 7 // Valeur par defaut du nombre de colonnes
@@ -37,7 +37,8 @@
 // Couleurs des camps
 #define CAMP_1_COULEUR RED
 #define CAMP_2_COULEUR BLUE
-#define COULEUR_PION_FATIGUE GRAY
+#define CAMP_1_COULEUR_PION_FATIGUE BROWN
+#define CAMP_2_COULEUR_PION_FATIGUE DARKPURPLE
 #define COULEUR_LETTRE_PION WHITE
 #define TAILLE_FONTE_LETTRE_PION 26
 #define COULEUR_SELECTION_PION YELLOW
@@ -61,6 +62,7 @@ typedef struct {
     Vector2 position;       // Position actuelle du pion en veteur pour l'affichage
     typePion type;          // Type de pion
     Color couleur;          // Couleur du pion
+    Color couleurPionFatigue; // Couleur du pion Fatigue
     bool estSelectionne;    // Indique si le pion est sélectionné
     int camp;               // Camp auquel le pion appartient (1 ou 2)
     int pointsDeVieMax;     // Points de vie maximum du pion

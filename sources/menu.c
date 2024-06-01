@@ -240,6 +240,6 @@ int ShowMenu(void) {
         UnloadImage(imOrigin);// Déchargement des images
         UnloadImage(imgAPropos);// Déchargement des images
         UnloadImage(imgAide);
-        TraceLog(LOG_INFO, "==>FIN MENU");
+        TraceLog(LOG_TRACE, "==>FIN MENU");
         return JEU_AUCUN;
     }

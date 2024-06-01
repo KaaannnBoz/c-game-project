@@ -47,6 +47,7 @@ void initialiserSoldat(pionGrille *pion, int ligne, int colonne, int camp, char 
     pion->position.y = DECALAGE_VERTICAL + ligne * TAILLE_CELLULE_GRILLE + TAILLE_CELLULE_GRILLE / 2;
     pion->type = SOLDAT;
     pion->couleur = (camp == 1) ? CAMP_1_COULEUR : CAMP_2_COULEUR;
+    pion->couleurPionFatigue = (camp == 1) ? CAMP_1_COULEUR_PION_FATIGUE : CAMP_2_COULEUR_PION_FATIGUE;
     pion->estSelectionne = false;
     pion->camp = camp;
     pion->pointsDeVieMax = 5;
@@ -69,6 +70,7 @@ void initialiserArcher(pionGrille *pion, int ligne, int colonne, int camp,char n
     pion->position.y = DECALAGE_VERTICAL + ligne * TAILLE_CELLULE_GRILLE + TAILLE_CELLULE_GRILLE / 2;
     pion->type = ARCHER;
     pion->couleur = (camp == 1) ? CAMP_1_COULEUR : CAMP_2_COULEUR;
+    pion->couleurPionFatigue = (camp == 1) ? CAMP_1_COULEUR_PION_FATIGUE : CAMP_2_COULEUR_PION_FATIGUE;
     pion->estSelectionne = false;
     pion->camp = camp;
     pion->pointsDeVieMax = 3;
@@ -91,6 +93,7 @@ void initialiserFilou(pionGrille *pion, int ligne, int colonne, int camp, char n
     pion->position.y = DECALAGE_VERTICAL + ligne * TAILLE_CELLULE_GRILLE + TAILLE_CELLULE_GRILLE / 2;
     pion->type = FILOU;
     pion->couleur = (camp == 1) ? CAMP_1_COULEUR : CAMP_2_COULEUR;
+    pion->couleurPionFatigue = (camp == 1) ? CAMP_1_COULEUR_PION_FATIGUE : CAMP_2_COULEUR_PION_FATIGUE;
     pion->estSelectionne = false;
     pion->camp = camp;
     pion->pointsDeVieMax = 5;

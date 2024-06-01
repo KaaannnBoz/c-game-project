@@ -7,11 +7,10 @@
  * Historique     :
  *      1/05/2024 : Création initiale des fonctions
  *		23/05/2024 : Mise en place du fichier attaques.c 
- * Liste des fonctions :
+ * Liste des fonctions :de   *		- attaque() : Fonction principale de l'attaque dans la boucle
  *		- estAttaquePossibleLigneColonne(porteeMax, ligneCourante, colonneCourante, ligneCible, colonneCible) : fonction indiquant si l'attaque est posible
  *		- estAttaquePossible(ligneCible, colonneCible, pions[]) : Fonction pour vérifier si une attaque est possible pour un pion donné
  *		- attaquerPion(pionQuiAttaque, pionAttaque) : Permet d'attaquer un pion
- *		- attaque() : Fonction principale de l'attaque dans la boucle
  **************************************************************************/ 
 
 #include "attaques.h"
@@ -29,23 +28,23 @@ bool estAttaquePossibleLigneColonne(int porteeMax,int ligneCourante, int colonne
         case 1 : // Classique
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
-            TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementY);
+            TraceLog(LOG_TRACE, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementY);
             resultat = !(deplacementX > porteeMax || deplacementY > porteeMax);
             break;
         case 2 : // Alorithme de Manhattan
             distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
-            TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, d=%d",porteeMax,distance);
+            TraceLog(LOG_TRACE, "[estAttaquePossibleLigneColonne] max=%d, d=%d",porteeMax,distance);
             resultat = distance <= porteeMax;
             break;
         case 3 : // Alorithme de Tchebychev
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
             distance = deplacementX>deplacementY?deplacementX:deplacementY; // Il s'agit du MAX des 2
-            TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementX);
+            TraceLog(LOG_TRACE, "[estAttaquePossibleLigneColonne] max=%d, dx=%d, dy=%d",porteeMax,deplacementX,deplacementX);
             resultat = distance <= porteeMax;
             break;
     }
-    TraceLog(LOG_INFO, "[estAttaquePossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
+    TraceLog(LOG_TRACE, "[estAttaquePossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
     return resultat;
 }
 // Fonction pour vérifier si une attaque est possible pour un pion donné
@@ -84,17 +83,17 @@ bool estAttaquePossiblePion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
 
 // Attaquer du pion
 void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
-    TraceLog(LOG_INFO,"[attaquerPion] DEBUT");
-    TraceLog(LOG_INFO,"[attaquerPion] pion %s attaque %s",pionQuiAttaque->nomCourt,pionAttaque->nomCourt);
+    TraceLog(LOG_TRACE,"[attaquerPion] DEBUT");
+    TraceLog(LOG_TRACE,"[attaquerPion] pion %s attaque %s",pionQuiAttaque->nomCourt,pionAttaque->nomCourt);
     // Attaque
-    TraceLog(LOG_INFO,"[attaquerPion] pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
+    TraceLog(LOG_TRACE,"[attaquerPion] pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
     if(pionQuiAttaque->attaque > pionAttaque->defense){
         pionAttaque->pointsDeVie = pionAttaque->pointsDeVie - (pionQuiAttaque->attaque - pionAttaque->defense) ;
     }
     if(pionQuiAttaque->attaque <= pionAttaque->defense){
         pionAttaque->pointsDeVie = pionAttaque->pointsDeVie - 1 ;
     }
-    TraceLog(LOG_INFO,"[attaquerPion] pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
+    TraceLog(LOG_TRACE,"[attaquerPion] pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
     // Si le pion est mort on le met sur le cote
     if (pionAttaque->pointsDeVie <= 0) {
         if (pionAttaque->camp == CAMP_1) {
@@ -115,21 +114,23 @@ void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
         if(pionAttaque->attaque <= pionQuiAttaque->defense && pionAttaque->portee >= distance ){
             pionQuiAttaque->pointsDeVie = pionQuiAttaque->pointsDeVie - 1 ;
         }
-        if (pionQuiAttaque->pointsDeVie <= 0) {
+        if (pionQuiAttaque->pointsDeVie <= 0) { // Si après contre attaque il est mort on le met hors de la grille
             if (pionQuiAttaque->camp == CAMP_1) {
                 deplacerPion(pionQuiAttaque, nombreLignesGrille, pionQuiAttaque->numeroPion);
             } else {
                 deplacerPion(pionQuiAttaque, nombreLignesGrille + 1, pionQuiAttaque->numeroPion);
             }
         }
+        TraceLog(LOG_TRACE,"[Contre attaque] faites");
     }
-    TraceLog(LOG_INFO,"[attaquerPion] FIN");
+    TraceLog(LOG_TRACE,"[attaquerPion] FIN");
 }
 
+// Fonction principale pour l'attaque
 void attaque(){
     pionGrille *pionAttaque = NULL; // Pion qui attaque
     if (IsKeyPressed(KEY_D)) { affichePionsDebug(pionsGrille); } // POUR DEBUG
-    if (!deplacementFait) return ; // Deplcement a faire d'abord
+    if (!deplacementFait) return ; // Deplcement a faire d'abord - boucle infini il faut d'abord faire un mouvement
     if ((typeJeu == JEU_UN_JOUEUR && tourActuel == 2) || typeJeu == JEU_DEUX_IA) { // L'IA joue pour le camp 2 Attaque
         if (coupIAEnCours.pionAttaque >= 0) { // Attaque à faire
             pionAttaque = &pionsGrille[coupIAEnCours.pionAttaque];
@@ -162,8 +163,8 @@ void attaque(){
                     // Obtenir les indices de ligne et de colonne de la case cible
                     int ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
                     int colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
-                    TraceLog(LOG_INFO, "CALCUL CIBLE ligneCible=%d", ligneCible);
-                    TraceLog(LOG_INFO, "CALCUL CIBLE colonneCible=%d", colonneCible);
+                    TraceLog(LOG_TRACE, "CALCUL CIBLE ligneCible=%d", ligneCible);
+                    TraceLog(LOG_TRACE, "CALCUL CIBLE colonneCible=%d", colonneCible);
                     // Vérifier si le déplacement est valide
                     // pionSlection est le pion qui attaque
                     pionAttaque = estAttaquePossible(denierPionSelectionne,ligneCible, colonneCible, pionsGrille);
