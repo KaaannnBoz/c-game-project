@@ -3,20 +3,22 @@
  * Description    : Gestion d'un arbre avec plusieurs fils pour l'IA est l'algo MinMAx
  *                  L'arbre gérer est un arbre avec plusieurs fils
  * Auteurs        : Team GEGK
+ *                  Inspiré par https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta
  *                  Inspiré par https://openclassrooms.com/forum/sujet/creation-arbre-n-aire
- *                  Inspiré par https://fr.wikipedia.org/wiki/Algorithme_de_parcours_en_largeur
- *                  Inspriré par https://www.youtube.com/watch?v=z1K6YMJmr6s&t=482s
+ *                  Inspirée par https://fr.wikipedia.org/wiki/Algorithme_minimax avec le Pseudocode 
  *                  Cours R. Gosswiller
  * Historique     :
  *      23/05/2024 : Création initiale du fichier.
  *      25/05/2024 : Premiers changements pour intégrer le jeu
  *      26/5/2024 : Ajout IA calcule de tous les coups
+ *      28 et 29/5: Ajout de deux IA et minimax
  * Liste des fonctions :
  *      - Noeud* creerNoeud(int donnee) : Création d'un noeud 
  *      - ajouterEnfant(Noeud* parent, Noeud* enfant) : ajout d'un enfant au noeud
  *      - libererArbre(Noeud* racine) : liébération de la mémoire (free)
  *      - afficherArbre(Noeud* racine, int niveau) : affichage de l'arbre pour tests
- *      - void parcoursLargeur(Noeud* racine) : Parcours en largeur de l'arbre (alog avec files)
+ *      - Noeud* lancerMinimax(Noeud* racine) : Lancement minimax et renvoie le meilleur noeud
+ *      - int minimax(Noeud* noeud, int profondeur, int alpha, int beta, bool noeudTypeMax) : algorithme minimax 
  *      - Noeud* obtenirParent(Noeud* noeud)  : Récup du parent pour connaitre le coup
  **************************************************************************/
 
@@ -26,12 +28,15 @@
 #include "file.h"
 
 // Fonction pour créer un nouveau noeud
+
 Noeud* creerNoeud(coupIA unCoup) {
     Noeud* nouveauNoeud = (Noeud*)malloc(sizeof(Noeud));
     nouveauNoeud->coup = unCoup;
     nouveauNoeud->enfants = NULL;
     nouveauNoeud->nbEnfants = 0;
-    nouveauNoeud->parent = NULL; // Initialiser le parent à NULL
+    nouveauNoeud->parent = NULL;
+    nouveauNoeud->note = 0;
+    nouveauNoeud->est_terminal = false;
     return nouveauNoeud;
 }
 
@@ -65,109 +70,144 @@ void afficherArbre(Noeud* racine, int niveau) {
         for (int i = 0; i < niveau; i++) {
             printf("  ");
         }
-        printf("no=%d,nom=%s,posL=%d,posC=%d \n",      racine->coup.pionEnMouvement,
+        printf("[%d] no=%d,nom=%s, note=%d, camp=%d, posL=%d, posC=%d, attaque=%d \n",niveau,racine->coup.pionEnMouvement,
                                 racine->coup.tableauPions[racine->coup.pionEnMouvement].nomCourt,
+                                racine->coup.note,
+                                racine->coup.tableauPions[racine->coup.pionEnMouvement].camp,
                                 racine->coup.tableauPions[racine->coup.pionEnMouvement].positionLigne,
-                                racine->coup.tableauPions[racine->coup.pionEnMouvement].positionColonne);
+                                racine->coup.tableauPions[racine->coup.pionEnMouvement].positionColonne,
+                                racine->coup.pionAttaque);
         for (int i = 0; i < racine->nbEnfants; i++) {
             afficherArbre(racine->enfants[i], niveau + 1);
         }
     }
 }
 
-// Fonction pour parcourir l'arbre en largeur
-/*
-Noeud* parcoursLargeur(Noeud* racine) {
-    Noeud* pionMaxScore = NULL;
+void afficherNoeud(Noeud* noeud) {
+    TraceLog(LOG_TRACE, "[==>afficherNoeud]");
+    printf("no=%d,nom=%s, note=%d, camp=%d, posL=%d, posC=%d, attaque=%d \n",      noeud->coup.pionEnMouvement,
+                                noeud->coup.tableauPions[noeud->coup.pionEnMouvement].nomCourt,
+                                noeud->coup.note,
+                                noeud->coup.tableauPions[noeud->coup.pionEnMouvement].camp,
+                                noeud->coup.tableauPions[noeud->coup.pionEnMouvement].positionLigne,
+                                noeud->coup.tableauPions[noeud->coup.pionEnMouvement].positionColonne,
+                                noeud->coup.tableauPions[noeud->coup.pionEnMouvement].attaque);
+     TraceLog(LOG_TRACE, "[<==afficherNoeud]");
+}
 
-    if (racine == NULL) {
-        return;
-    }
-    File *tete = NULL, *queue = NULL;
-    enfiler(&tete, &queue, racine);
-    
-    while (tete != NULL) {
-        Noeud* courant = defiler(&tete, &queue);
-
-        printf("no=%d,nom=%s,posL=%d,posC=%d SCORE=%d, cibleL=%d,cibleC=%d\n", courant->coup.pionEnMouvement,
-               courant->coup.tableauPions[courant->coup.pionEnMouvement].nomCourt,
-               courant->coup.tableauPions[courant->coup.pionEnMouvement].positionLigne,
-               courant->coup.tableauPions[courant->coup.pionEnMouvement].positionColonne,
-               courant->coup.note,courant->coup.ligneCibleMouvement,courant->coup.colonneCibleMouvement);
-        if (pionMaxScore == NULL) {
-            pionMaxScore = courant;
-        } else {
-            if (courant->coup.note > pionMaxScore->coup.note) {
-                pionMaxScore = courant;
-            }
-        }
-        for (int i = 0; i < courant->nbEnfants; i++) {
-            enfiler(&tete, &queue, courant->enfants[i]);
-        }
-    }
-    printf("MAX no=%d,nom=%s,posL=%d,posC=%d SCORE=%d, cibleL=%d,cibleC=%d\n", pionMaxScore->coup.pionEnMouvement,
-           pionMaxScore->coup.tableauPions[pionMaxScore->coup.pionEnMouvement].nomCourt,
-           pionMaxScore->coup.tableauPions[pionMaxScore->coup.pionEnMouvement].positionLigne,
-           pionMaxScore->coup.tableauPions[pionMaxScore->coup.pionEnMouvement].positionColonne,
-           pionMaxScore->coup.note,pionMaxScore->coup.ligneCibleMouvement,pionMaxScore->coup.colonneCibleMouvement);
-    return pionMaxScore;
-}*/
-
-// Parcours de l'arbre en largeur pour calcul du min et du max
-// pour arbre à une seul niveao on calcul le niveau 1
-// Fait le max pour l'instant
-Noeud* parcoursLargeur(Noeud* racine) {
+// Fonction principale Minimax utilisant BFS 
+// On renvoie le noeud qui doit jouer
+// NON UTILISE
+Noeud* minimaxLargeurDeux(Noeud* racine) {
     if (racine == NULL) {
         return NULL;
     }
-
-    Noeud* pionMaxScore = NULL;
-    File *tete = NULL, *queue = NULL;
-    enfiler(&tete, &queue, racine);
-    enfiler(&tete, &queue, NULL);  // Marqueur de niveau
+    File* tete = NULL;
+    File* queue = NULL;
+    enfiler(&tete, &queue, racine); // Enfiler la racine
 
     int niveau = 0;
-    int maxNote = INT_MIN;
-    int minNote = INT_MAX;
+    int meilleurNote = INT_MIN; // Pour la maximisation
+    Noeud* meilleurNoeud = NULL;
 
     while (tete != NULL) {
-        Noeud* courant = defiler(&tete, &queue);
-
-        if (courant == NULL) {
-            printf("Niveau %d: Max Note = %d, Min Note = %d\n", niveau, maxNote, minNote);
-
-            // Réinitialiser les valeurs pour le prochain niveau
-            maxNote = INT_MIN;
-            minNote = INT_MAX;
-
-            // Si la file n'est pas vide, ajouter un nouveau marqueur de niveau
-            if (tete != NULL) {
-                enfiler(&tete, &queue, NULL);
-            }
+        Noeud* noeudCourant = defiler(&tete, &queue); // Défiler un nœud
+        if (noeudCourant == NULL) {
+            // Si le noeud courant est NULL, onb change de niveau
             niveau++;
             continue;
         }
 
-        printf("Niveau %d, no=%d, nom=%s, NOTE=%d, cibleL=%d, cibleC=%d, pionAttaque=%d\n",
-               niveau, courant->coup.pionEnMouvement,
-               courant->coup.tableauPions[courant->coup.pionEnMouvement].nomCourt,
-               courant->coup.note,
-               courant->coup.ligneCibleMouvement,
-               courant->coup.colonneCibleMouvement,
-               courant->coup.pionAttaque);
-
-        if (courant->coup.note > maxNote && niveau>0) { // Si la note est plus grande on le memorise
-            maxNote = courant->coup.note;
-            pionMaxScore = courant;
+        // Pour les niveaux 2 et 4 on fait le max (nivau pairs %2 == 0)
+        if (niveau % 2 == 0) { // Pour les niveaux pair (MAX)
+            if (noeudCourant->note > meilleurNote) {
+                meilleurNote = noeudCourant->note;
+                meilleurNoeud = noeudCourant;
+            }
+        } else { // Pour les niveaux impairs (MIN)
+            if (noeudCourant->note < meilleurNote) {
+                meilleurNote = noeudCourant->note;
+                meilleurNoeud = noeudCourant;
+            }
         }
-        if (courant->coup.note < minNote) {
-            minNote = courant->coup.note;
+        // Ajouter les enfants du noeud courant à la file
+        for (int i = 0; i < noeudCourant->nbEnfants; i++) {
+            enfiler(&tete, &queue, noeudCourant->enfants[i]);
         }
+        if (tete != NULL) {
+            enfiler(&tete, &queue, NULL); // Marqueur de niveau
+        }
+    }
+    return meilleurNoeud;
+}
 
-        for (int i = 0; i < courant->nbEnfants; i++) {
-            enfiler(&tete, &queue, courant->enfants[i]);
+
+//
+// Algorithme minimax https://fr.wikipedia.org/wiki/Algorithme_minimax
+// L'algoritme utilisé est C https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta
+// la base est sur https://fr.wikipedia.org/wiki/Algorithme_minimax
+// On utilise Pseudocode
+//
+
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
+int minimax(Noeud* noeud, int profondeur, int alpha, int beta, bool noeudTypeMin) {
+    int v;
+    if (profondeur == 0 || noeud->est_terminal) { // On est sur une feuille
+        return noeud->note; // Retourne la note (calculer avant avec CalculerNoteTableau)
+    }
+    if (noeudTypeMin) { // noeud de type MIN
+        v = INT_MIN;
+        for (int i = 0; i < noeud->nbEnfants; i++) {
+            int eval = minimax(noeud->enfants[i], profondeur - 1, alpha, beta, false);
+            v = max(v, eval);
+            alpha = max(alpha, eval);
+            if (beta <= alpha) {
+                break; // elage alpha-beta
+            }
+        }
+        return v;
+    } else {
+        v = INT_MAX; // noeud de type MAX
+        for (int i = 0; i < noeud->nbEnfants; i++) {
+            int eval = minimax(noeud->enfants[i], profondeur - 1, alpha, beta, true);
+            v = min(v, eval);
+            beta = min(beta, eval);
+            if (beta <= alpha) {
+                break; // elage alpha-beta
+            }
+        }
+        return v;
+    }
+}
+
+// Algorithme minimax 
+Noeud* lancerMinimax(Noeud* racine) {
+    int profondeur = optionsIA; // Profondeur de recherche définie par les options de l'IA
+    int maxEval = INT_MIN; // Par defaut on met moins infini
+    Noeud* meilleurNoeud = NULL; // Pas de maielleur noeud
+
+    // Parcours des enfants de la racine (niveau 2) pour calculer ses enfants
+    for (int i = 0; i < racine->nbEnfants; i++) {
+        int eval = minimax(racine->enfants[i], profondeur - 1, INT_MIN, INT_MAX, false);
+        if (eval > maxEval) {
+            maxEval = eval;
+            meilleurNoeud = racine->enfants[i];
         }
     }
 
-    return pionMaxScore;
+    // Si aucun meilleur noeud n'est trouvé, renvoyer le meilleur coup de niveau 1
+    // Cas possible si uniquement sur 3 niveaux
+    // Evite les coups impossibles
+    if (meilleurNoeud == NULL) {
+        for (int i = 0; i < racine->nbEnfants; i++) {
+            if (racine->enfants[i]->note > maxEval) {
+                maxEval = racine->enfants[i]->note;
+                meilleurNoeud = racine->enfants[i];
+            }
+        }
+    }
+
+    return meilleurNoeud;
 }

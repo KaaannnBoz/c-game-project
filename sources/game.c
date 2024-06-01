@@ -61,6 +61,7 @@ void boucleJeu() {
         if (!estJeuFini()){
             if (typeJeu == JEU_DEUX_IA) { // On doit ralendir le jeu en mode 2 IA car ca va tro vite
                 // Voir actuce https://fr.wikiversity.org/wiki/Fonctions_de_base_en_langage_C/time.h#:~:text=Fonction%20time()%20modifier,0%20seconde%20sous%20UNIX%2C%20UTC.
+                // Si IA est trop rapide ; on fait le rendu graphique
                 if ((clock() - lastTime) > (TEMPORISATION * CLOCKS_PER_SEC / 1000)) { // permet de pas aller trop vite en mode deux IA
                     deplacement();
                     attaque();
@@ -89,7 +90,7 @@ void afficherPopupFin(){
         DrawRectangleRec(popup, WHITE);
 
         if (toutLesPionsMortCamp1 || toutLesPionsMortCamp2) {
-            if (toutLesPionsMortCamp1) {
+            if (toutLesPionsMortCamp2) {
                 DrawText("Le camp 1 a gagné !", popup.x + 50, popup.y + 20, 30, CAMP_1_COULEUR);
             } else {
                 DrawText("Le camp 2 a gagné !", popup.x + 50, popup.y + 20, 30, CAMP_2_COULEUR);
@@ -167,13 +168,13 @@ void calculerPointsDeVie(){
 
 // si on dépase le nombre de coups on s'arrette
 bool estJeuFini(){
-    if (nombreCoups >= MAX_COUPS) {
+    if (nombreCoups >= MAX_COUPS) { // On depasse le nombre de cou on a fini
         calculerPointsDeVie();
         return true;
     }
-    verifiePionsMorts();
+    verifiePionsMorts(); // Vérifie si les pions sont mort dans un camp
     if (toutLesPionsMortCamp1 || toutLesPionsMortCamp2) {
-        TraceLog(LOG_INFO, "[verifiePionsMorts] toutLesPionsMortCamp2=%d,toutLesPionsMortCamp1=%d",toutLesPionsMortCamp2,toutLesPionsMortCamp1);
+        TraceLog(LOG_TRACE, "[verifiePionsMorts] toutLesPionsMortCamp2=%d,toutLesPionsMortCamp1=%d",toutLesPionsMortCamp2,toutLesPionsMortCamp1);
         return true;
     }
     resetPionsFatigues(pionsGrille);
@@ -182,12 +183,12 @@ bool estJeuFini(){
 
 void finJeu() {
     // Libération de la mémoire
-    TraceLog(LOG_INFO,"==>finJeu free ==> nb lignes %d",nombreLignesGrille);
+    TraceLog(LOG_TRACE,"==>finJeu free ==> nb lignes %d",nombreLignesGrille);
     for (int i = 0; i < nombreLignesGrille; i++) {
         free(grille[i]);
     }
     free(grille);
-    TraceLog(LOG_INFO,"<==finJeu");
+    TraceLog(LOG_TRACE,"<==finJeu");
 }
 
 ///////// DEBUG ////////////
@@ -195,7 +196,7 @@ void finJeu() {
 // Fonction de debug - affichage etat des pions
 void affichePionsDebug(pionGrille pions[]){
     for (int i = 0; i < NOMBRE_PIONS_MAX; i++) {
-        TraceLog(LOG_INFO,"DEBUG pion[%d] nom=%s, camp=%d, pv=%d,type=%s ",i,
+        TraceLog(LOG_TRACE,"DEBUG pion[%d] nom=%s, camp=%d, pv=%d,type=%s ",i,
                  pionsGrille[i].nomCourt,
                  pionsGrille[i].camp,
                  pionsGrille[i].pointsDeVie,

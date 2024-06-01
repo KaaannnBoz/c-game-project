@@ -35,7 +35,7 @@ void renduGraphique(){
     for (int i = 0; i < NOMBRE_PIONS_MAX ; i++) {
         // Dessin du pion avec la bonne colueur
         if (pionsGrille[i].estFatigue){
-            DrawCircleV(pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4, COULEUR_PION_FATIGUE);
+            DrawCircleV(pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4, pionsGrille[i].couleurPionFatigue);
         } else {
             DrawCircleV(pionsGrille[i].position, TAILLE_CELLULE_GRILLE / 4, pionsGrille[i].couleur);
         }

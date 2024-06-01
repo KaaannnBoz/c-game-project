@@ -7,14 +7,16 @@
  * Historique     :
  *      1/5/2024 : Création initiale des fonctions
  *		23/5/2024 : Mise en place du fichier deplacements.c 
- *		25/5/2024 : Ajout de l'IA un joueur 
+ *		25/5/2024 : Ajout de l'IA un joueur
+ *		28 et 29/5: Ajout de deux IA
  *					 
  * Liste des fonctions :
+ * 	- deplacement() : fonction principale de la boucle de jeu - gestion du déplacement
  * 	- estDeplacementPossibleLigneColonne(deplacementMax, ligneCourante, colonneCourante, ligneCible, colonneCible)
  * 	- estCheminLibre(pion, ligneCible, colonneCible, pions[]) : permet de s'assurer que l'on ne saute pâs de pion dans un chemin
  * 	- estDeplacementPossible(pion, ligneCible, colonneCible, pions[]) : indique si on pion peut aller à une destination donnée
- * 	- deplacerPion(pion, ligneCible, colonneCible) : effectue le déplacement du pion 
- * 	- deplacement() : fonction principale de la boucle de jeu - gestion du déplacement
+ * 	- deplacerPion(pion, ligneCible, colonneCible) : effectue le déplacement du pion
+ * 	- resetPionsFatigues() : permet de remettre les pions fatigues à non fatigue pour tous les tours
  **************************************************************************/
 
 #include "deplacements.h"
@@ -32,23 +34,23 @@ bool estDeplacementPossibleLigneColonne(int deplacementMax,int ligneCourante, in
         case 1 : // Classique
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
-            TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
+            TraceLog(LOG_TRACE, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
             resultat = !(deplacementX > deplacementMax || deplacementY > deplacementMax);
             break;
         case 2 : // Algorithme de Manhattan
             distance = abs(ligneCible - ligneCourante) + abs(colonneCible - colonneCourante);
-            //TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, d=%d",deplacementMax,distance);
+            TraceLog(LOG_TRACE, "[estDeplacementPossibleLigneColonne] max=%d, d=%d",deplacementMax,distance);
             resultat = distance <= deplacementMax;
             break;
         case 3 : // Alorithme de Tchebychev
             deplacementX = abs(ligneCourante - ligneCible);
             deplacementY = abs(colonneCourante - colonneCible);
             distance = deplacementX>deplacementY?deplacementX:deplacementY; // Il s'agit du MAX des 2
-            TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
+            TraceLog(LOG_TRACE, "[estDeplacementPossibleLigneColonne] max=%d, dx=%d, dy=%d",deplacementMax,deplacementX,deplacementX);
             resultat = distance <= deplacementMax;
             break;
     }
-    //TraceLog(LOG_INFO, "[estDeplacementPossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
+    TraceLog(LOG_TRACE, "[estDeplacementPossibleLigneColonne] Possible = %s",(resultat?"OUI":"NON"));
     return resultat;
 }
 // Indique si le pion qui veut bouger va sauter un autre pion. il ne peut pas
@@ -130,7 +132,7 @@ bool estDeplacementPossible(const pionGrille *pion, int ligneCible, int colonneC
 
 // Fonction pour déplacer un pion sur la grille si le déplacement est possible
 void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) {
-    TraceLog(LOG_INFO, "[deplacerPion] nom=%s,ligne=%d, colonne=%d ligneCible=%d, colonneCible=%d",pion->nomCourt,pion->positionLigne, pion->positionColonne,ligneCible,colonneCible);
+    TraceLog(LOG_TRACE, "[deplacerPion] nom=%s,ligne=%d, colonne=%d ligneCible=%d, colonneCible=%d",pion->nomCourt,pion->positionLigne, pion->positionColonne,ligneCible,colonneCible);
     // On met le pion au milieu du rectangle
     Vector2 centreCible;
     centreCible.x = DECALAGE_HORIZONTAL + colonneCible * TAILLE_CELLULE_GRILLE + TAILLE_CELLULE_GRILLE / 2;
@@ -142,6 +144,7 @@ void deplacerPion(pionGrille *pion, int ligneCible, int colonneCible) {
 }
 
 // Renvoie si un deplacement a été fait
+// FONCTION PRINCIPAL
 void deplacement(){
 	int ligneCible, colonneCible;
     bool faireDeplacement = false; // Indique si on fait le depalcment
@@ -182,8 +185,8 @@ void deplacement(){
 			// Obtenir les indices de ligne et de colonne de la case cible
 			ligneCible = (GetMouseY() - DECALAGE_VERTICAL) / TAILLE_CELLULE_GRILLE;
 			colonneCible = (GetMouseX() - DECALAGE_HORIZONTAL) / TAILLE_CELLULE_GRILLE;
-			TraceLog(LOG_INFO,"CALCUL ligneCible=%d",ligneCible);
-			TraceLog(LOG_INFO,"CALCUL colonneCible=%d",colonneCible);
+			TraceLog(LOG_TRACE,"CALCUL ligneCible=%d",ligneCible);
+			TraceLog(LOG_TRACE,"CALCUL colonneCible=%d",colonneCible);
 			// Vérifier si le déplacement est valide
             faireDeplacement = estDeplacementPossible(pionSelectionne, ligneCible, colonneCible,pionsGrille);
             deplacementPossible = faireDeplacement;

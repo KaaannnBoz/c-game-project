@@ -25,6 +25,7 @@ int main() {
 
     InitWindow(screenWidth, screenHeight, "GEGK : Un affrontement stratégique !");
     SetTargetFPS(FRAME_RATE);
+    SetTraceLogLevel(LOG_TRACE);
 
     int option = JEU_AUCUN;
     while (1) { // Boucle infinie tant qu'on fait pas quitter

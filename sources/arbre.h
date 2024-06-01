@@ -11,11 +11,14 @@
 #include "player_ia.h"
 
 // Définition de la structure Noeud
+
 typedef struct Noeud {
-    coupIA coup;
-    struct Noeud** enfants;
-    int nbEnfants;
-    struct Noeud* parent; // Ajouter un pointeur vers le parent
+    coupIA coup;            // Coup  jouer
+    struct Noeud** enfants; // Liste des tous les noeud enfants : coups possibles
+    int nbEnfants;          // Nombre de noeuds enfants
+    struct Noeud* parent;   // Pointeur sur le noeud parent
+    int note;               // Note sur le noeud
+    bool est_terminal;      // Indique si le noeud est une feuille
 } Noeud;
 
 // Prototypes des fonctions
@@ -35,7 +38,10 @@ void libererArbre(Noeud* racine);
 // Fonction pour afficher l'arbre
 void afficherArbre(Noeud* racine, int niveau);
 
-// Fonction pour parcourir l'arbre en largeur
-Noeud* parcoursLargeur(Noeud* racine);
+// Fonction pour afficher un noeud
+void afficherNoeud(Noeud* noeud);
+
+// Fonction pour parcourir l'arbre en largeur MiniMax
+Noeud* lancerMinimax(Noeud* racine);
 
 #endif // ARBRE_H
