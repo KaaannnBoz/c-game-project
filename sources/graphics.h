@@ -9,6 +9,8 @@
 
 #include "game.h"
 #include <raylib.h>
+#include "attaques.h"
+
 
 void renduGraphique();
 
