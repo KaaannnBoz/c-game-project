@@ -226,11 +226,14 @@ void calculCoupIA(coupIA* coupEnCours,pionGrille pions[], int tourActuel) {
     noeudMaxScore = lancerMinimax(racine);
     TraceLog(LOG_INFO, "[==>minimax]");
     if (noeudMaxScore != NULL){
+        TraceLog(LOG_INFO, "[==>Coup à jouer]");
         afficherNoeud(noeudMaxScore);
         coupEnCours->colonneCibleMouvement = noeudMaxScore->coup.colonneCibleMouvement;
         coupEnCours->ligneCibleMouvement = noeudMaxScore->coup.ligneCibleMouvement;
         coupEnCours->pionEnMouvement = noeudMaxScore->coup.pionEnMouvement;
         coupEnCours->pionAttaque = noeudMaxScore->coup.pionAttaque;
+        TraceLog(LOG_INFO, "[Coup à jouer] Attaque = %d",coupEnCours->pionAttaque);
+        TraceLog(LOG_INFO, "[<==Coup à jouer]");
     } else {
         TraceLog(LOG_INFO, "[calculCoupIA] COUP IMPOSSIBLE");
     }
