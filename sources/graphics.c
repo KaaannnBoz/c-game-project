@@ -54,20 +54,23 @@ void renduGraphique(){
     // Affichage dans la zone de texte
     // A a partir du bas
     DrawRectangle(0, hauteurEcran - 120, LargeurEcran, 120, LIGHTGRAY);
-    DrawText(TextFormat("Camp actuel qui joue : %d (%s)", tourActuel,deplacementFait?"Attaque":"Deplacement"), 10, hauteurEcran - 105, 16, tourActuel==CAMP_1?CAMP_1_COULEUR:CAMP_2_COULEUR);
+    DrawText(TextFormat("Camp actuel qui joue : %d (%s)", tourActuel,deplacementFait?"Attaque":"Deplacement"), 10, hauteurEcran - 110, 16, tourActuel==CAMP_1?CAMP_1_COULEUR:CAMP_2_COULEUR);
     if (pionSelectionne != NULL) {
-        DrawText("Pion selectionné : ", 10, hauteurEcran - 85, 16, BLACK);
-        DrawText(nomPions[pionSelectionne->type], 149, hauteurEcran - 85, 16, BLACK);
-        DrawText(TextFormat("PV restants: %01i", pionSelectionne->pointsDeVie), 10, hauteurEcran - 65, 16, BLACK);
-        DrawText(TextFormat("Attaque: %01i", pionSelectionne->attaque), 10, hauteurEcran - 45, 16, BLACK);
-        DrawText(TextFormat("Defense: %01i", pionSelectionne->defense), 10, hauteurEcran - 25, 16, BLACK);
+        DrawText("Pion selectionné : ", 10, hauteurEcran - 90, 16, BLACK);
+        DrawText(nomPions[pionSelectionne->type], 149, hauteurEcran - 90, 16, BLACK);
+        DrawText(TextFormat("PV restants: %01i", pionSelectionne->pointsDeVie), 10, hauteurEcran - 70, 16, BLACK);
+        DrawText(TextFormat("Attaque: %01i", pionSelectionne->attaque), 10, hauteurEcran - 50, 16, BLACK);
+        DrawText(TextFormat("Defense: %01i", pionSelectionne->defense), 10, hauteurEcran - 30, 16, BLACK);
+        DrawText(TextFormat("Portée: %01i", pionSelectionne->portee), 450, hauteurEcran - 30, 16, BLACK);
+        DrawText(TextFormat("Déplacement: %01i", pionSelectionne->deplacement), 450, hauteurEcran - 50, 16, BLACK);
+        DrawText(TextFormat("Tours: %01i", Tours), 450, hauteurEcran - 70, 16, BLACK);
     } else {
         DrawText("Aucun pion selectionné", 10, hauteurEcran - 85, 16, BLACK);
     }
 
     // Message d'erreur pour texte interdit
     if (!deplacementPossible) {
-        DrawText("Déplacement interdit", 200, hauteurEcran - 25, 16, RED);
+        DrawText("Déplacement interdit", 400, hauteurEcran - 110, 16, RED);
     }
 
     // Fin du rendu graphique

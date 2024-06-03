@@ -17,6 +17,8 @@
 
 ///////// ATTAQUES /////////////
 
+int Tours = 1;
+
 // Algorithmes permettant de calcluler la distance entre deux cases
 // Pour la distance Mannathan voir Wikipedia ==> https://fr.wikipedia.org/wiki/Distance_de_Manhattan
 // Il existe aussi la distance Tchebychev ==> de https://fr.wikipedia.org/wiki/Distance_de_Tchebychev
@@ -150,6 +152,7 @@ void attaque(){
             IsKeyPressed(KEY_LEFT_CONTROL)) { // Si touche F1 ou 'CTRL' appuyee alors pas d'attaque
             deplacementFait = false;
             // Changer de camp pour le prochain tour
+            Tours = Tours +1;
             tourActuel = (tourActuel == 1) ? 2 : 1;
             denierPionSelectionne->estFatigue = true; // Le pion est fatigué
             return;
@@ -177,6 +180,7 @@ void attaque(){
     if (pionAttaque != NULL) {
         // Attaquer pion
         attaquerPion(denierPionSelectionne, pionAttaque);
+        Tours = Tours +1;
         // Changer de camp pour le prochain tour
         tourActuel = (tourActuel == 1) ? 2 : 1;
         deplacementFait = false; // On a fait attaque on peut de nouveau faire une mouvement

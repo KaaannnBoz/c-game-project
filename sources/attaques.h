@@ -21,5 +21,6 @@ pionGrille* estAttaquePossible(pionGrille* pionQuiAttaque,int ligneCible, int co
 bool estAttaquePossiblePion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque);
 void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque);
 void attaque();
+extern int Tours;
 
 #endif //C_GAME_PROJECT_ATTAQUES_H
