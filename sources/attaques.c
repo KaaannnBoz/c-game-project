@@ -86,14 +86,14 @@ void attaquerPion(pionGrille* pionQuiAttaque,pionGrille* pionAttaque){
     TraceLog(LOG_TRACE,"[attaquerPion] DEBUT");
     TraceLog(LOG_TRACE,"[attaquerPion] pion %s attaque %s",pionQuiAttaque->nomCourt,pionAttaque->nomCourt);
     // Attaque
-    TraceLog(LOG_TRACE,"[attaquerPion] pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
+    TraceLog(LOG_TRACE,"[attaquerPion] Avant pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
     if(pionQuiAttaque->attaque > pionAttaque->defense){
         pionAttaque->pointsDeVie = pionAttaque->pointsDeVie - (pionQuiAttaque->attaque - pionAttaque->defense) ;
     }
     if(pionQuiAttaque->attaque <= pionAttaque->defense){
         pionAttaque->pointsDeVie = pionAttaque->pointsDeVie - 1 ;
     }
-    TraceLog(LOG_TRACE,"[attaquerPion] pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
+    TraceLog(LOG_TRACE,"[attaquerPion] Après pionAttaque nom=%s pv=%d",pionAttaque->nomCourt,pionAttaque->pointsDeVie);
     // Si le pion est mort on le met sur le cote
     if (pionAttaque->pointsDeVie <= 0) {
         if (pionAttaque->camp == CAMP_1) {
@@ -134,6 +134,7 @@ void attaque(){
     if ((typeJeu == JEU_UN_JOUEUR && tourActuel == 2) || typeJeu == JEU_DEUX_IA) { // L'IA joue pour le camp 2 Attaque
         if (coupIAEnCours.pionAttaque >= 0) { // Attaque à faire
             pionAttaque = &pionsGrille[coupIAEnCours.pionAttaque];
+            TraceLog(LOG_TRACE,"[attaquerIA] pion=%d",coupIAEnCours.pionAttaque);
             deplacementFait = false;
             // Changer de camp pour le prochain tour
             tourActuel = (tourActuel == 1) ? 2 : 1;

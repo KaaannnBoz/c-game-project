@@ -85,13 +85,13 @@ void afficherArbre(Noeud* racine, int niveau) {
 
 void afficherNoeud(Noeud* noeud) {
     TraceLog(LOG_TRACE, "[==>afficherNoeud]");
-    printf("no=%d,nom=%s, note=%d, camp=%d, posL=%d, posC=%d, attaque=%d \n",      noeud->coup.pionEnMouvement,
+    printf("no=%d,nom=%s, note=%d, camp=%d, posL=%d, posC=%d, pion attaqué=%d\n",      noeud->coup.pionEnMouvement,
                                 noeud->coup.tableauPions[noeud->coup.pionEnMouvement].nomCourt,
                                 noeud->coup.note,
                                 noeud->coup.tableauPions[noeud->coup.pionEnMouvement].camp,
                                 noeud->coup.tableauPions[noeud->coup.pionEnMouvement].positionLigne,
                                 noeud->coup.tableauPions[noeud->coup.pionEnMouvement].positionColonne,
-                                noeud->coup.tableauPions[noeud->coup.pionEnMouvement].attaque);
+                                noeud->coup.pionAttaque);
      TraceLog(LOG_TRACE, "[<==afficherNoeud]");
 }
 
